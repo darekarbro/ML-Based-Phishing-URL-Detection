@@ -1,0 +1,21 @@
+# Environments
+.venv/
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.cpython-*.pyc
+
+# Logs and databases
+predictions_log.csv
+*.sqlite3
+*.db
+*.log
+
+# Models and data
+models/
+urldata.csv
+urldata_extracted.csv
