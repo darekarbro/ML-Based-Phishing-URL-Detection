@@ -58,7 +58,7 @@ The machine learning models considered to train the dataset in this project are 
 - Random Forest
 - Multilayer Perceptron
 
-(For this dataset MLP gave the highest accuracy (99%) with suitably balanced precision and recall,the trained model is saved [here](https://github.com/deepeshdm/Phishing-Attack-Domain-Detection/tree/main/models))
+(For this dataset MLP gave the highest accuracy (99%) with suitably balanced precision and recall,the trained model is saved [here](https://github.com/darekarbro/ML-Based-Phishing-URL-Detection.git))
 
 
 ## 👨‍💻 To run (locally)
