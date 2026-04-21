@@ -1,0 +1,6 @@
+timestamp,url,probability,url_length,hostname_length,count.,count-digits,count-,count@,count%,subdomain_count,suspicious_tld,use_of_ip,has_https,path_length,fd_length,path_depth,query_param_count,tld_in_path,double_extension,has_fragment,short_url,phish_keyword
+2026-04-22T03:50:01.957750,http://google.com,100.0,17,10,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+2026-04-22T03:57:03.619392,https://www.google.com,2.62,22,14,2,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+2026-04-22T03:57:18.873903,https://www.google.com,2.62,22,14,2,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+2026-04-22T03:57:28.306608,https://www.google.com,2.62,22,14,2,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+2026-04-22T04:00:35.268441,https://www.google.com,2.62,22,14,2,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0

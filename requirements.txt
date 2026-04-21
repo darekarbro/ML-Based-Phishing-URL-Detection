@@ -1,3 +1,9 @@
-tensorflow==2.7
-regex
-urllib3==1.26.6
+scikit-learn
+pandas
+numpy
+fastapi
+uvicorn
+matplotlib
+seaborn
+tldextract
+joblib

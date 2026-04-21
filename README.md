@@ -1,111 +1,141 @@
-## Phishing Attack Domain Detection with Machine Learning
+# Phishing URL Detection Using Machine Learning
 
-#### 🔥 Official Website 👉 [phishr.vercel.app](https://phishr.vercel.app/)
-Enter any URL and our Machine Learning model will scan the URL and tell you if its malicious or not.
-<br/>
+![Phishing Detection](https://img.shields.io/badge/Machine%20Learning-Phishing%20Detection-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.8%2B-green.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-API-teal.svg)
 
-<div align="center">
-<img src="/Imgs/phishr-demo3.gif" width="90%"/>
-</div>
+## 📌 Project Overview
+This project detects malicious and phishing URLs using Machine Learning. It extracts key structural, domain, and behavioral features from a URL and passes them to trained ML models to determine the probability of the URL being a phishing attempt. The project includes a robust training pipeline, a fast API for inference, and integrated logging for Power BI dashboards.
 
-## 🎯 Objective
-Phishing is a type of fraud in which an attacker impersonates a reputable company or person in order to get sensitive information such as login credentials or account information via email or other communication channels.Phishing is popular among attackers because it is easier to persuade someone to click a malicious link that appears to be authentic than it is to break through a computer's protection measures.
+## 🎯 Problem Statement
+Phishing attacks are one of the most common cyber threats, tricking users into revealing sensitive information through deceptive URLs. A reliable, real-time ML-based URL classifier can significantly mitigate these risks by predicting the probability that a given link is malicious.
 
+---
 
-The main goal of this project is  to create a domain authentication system that would detect if a given domain url is legit or fake website created to perform fraud. Multiple ML models will be tested for this problem. A web Interface along with suitable Rest-API's will be created for commercial use.
+## 🔍 Features Extracted (20 Features)
 
-<div align="center">
-<img src="/Imgs/phising_architecture.jpg" width="75%"/>
-</div>
+We extract 20 specific features to ensure strong performance without unnecessary complexity.
 
-## Project Workflow
-The project will follow the same approach as used in all ML project. We'll go through different stages of data collection,feature extraction,training and finally deployment of trained model.
+### 🔹 Structure Features
+1. **url_length**: The total character length of the URL.
+2. **hostname_length**: Length of the domain name.
+3. **count.**: Number of dots (`.`) in the URL.
+4. **count-digits**: Total number of numeric digits in the URL.
+5. **count-**: Number of hyphens (`-`). Phishing sites often use hyphens to mimic legitimate domains.
+6. **count@**: Number of `@` symbols. Often used to hide the actual domain.
+7. **count%**: Number of `%` symbols. Indicates URL encoding, often used to obfuscate.
 
-- Data Collection
-- Feature Extraction
-- Model training & evaluation
-- Deployment
+### 🔹 Domain Features
+8. **subdomain_count**: The number of subdomains. Phishers use long subdomains to trick users.
+9. **suspicious_tld**: Checks if the Top-Level Domain (TLD) is commonly associated with spam (e.g., `.xyz`, `.top`).
+10. **use_of_ip**: Checks if the domain is directly an IP address instead of a standard hostname.
+11. **has_https**: `1` if the URL uses secure HTTPS, `0` otherwise.
 
+### 🔹 Path / Behavior Features
+12. **path_length**: Length of the URL path (everything after the domain).
+13. **fd_length**: Length of the first directory in the path.
+14. **path_depth**: The number of directories in the path (slashes `/`).
+15. **query_param_count**: The number of parameters passed in the URL (separated by `&`).
+16. **tld_in_path**: Checks if a domain extension (like `.com`) is hiding in the path (e.g., `google.com/login.com`).
 
-## Data Collection
+### 🔹 Security Trick Features
+17. **double_extension**: Detects suspicious files with double extensions (e.g., `.pdf.exe`).
+18. **has_fragment**: Checks for `#` fragment identifiers in the URL.
+19. **short_url**: Detects if the URL uses a link shortener service like `bit.ly` or `tinyurl.com`.
 
-For this project we'll need bunch of legitimate and phishing url's,each categorised by (0) and (1). We'll use [this](https://www.kaggle.com/siddharthkumar25/malicious-and-benign-urls) dataset.
+### 🔹 Intent Feature
+20. **phish_keyword**: Checks if common phishing words (like `login`, `verify`, `secure`, `bank`) are present in the URL.
 
-It contains 450k domain url's out of which 345k are legitimate and 104k are malicious. The Imbalanced dataset is oversampled using the SOMTE technique,which increases the total number of samples to around 600k.
+---
 
+## 🤖 Machine Learning Models
 
-## Feature Extraction
+We tested four machine learning algorithms on the dataset:
+* **Decision Tree (DT)**
+* **Random Forest (RF)**
+* **Logistic Regression (LR)**
+* **Support Vector Machine (SVM)**
 
-The dataset till now consist of only legit and malicious urls,in this stage we extract some useful features from these urls and further improve our dataset to make it more suitable for training ML models.
+### Evaluation Metrics
+We compare models using:
+* **Accuracy:** Overall correctness of the model.
+* **Precision:** Accuracy of positive predictions.
+* **Recall:** Ability to find all actual positive cases.
+* **F1-Score:** The balance between Precision and Recall.
 
-The below mentioned category of features are extracted from the URL data :
-- Length based Features ( 5 features extracted)
-- Count based Features ( 11 features extracted)
-- Binary Features  ( 2 features extracted)
+*The results and feature importances are automatically saved as graphs in the `Imgs/` directory after running `train.py`.*
 
+---
 
- All together 18 features are extracted from each url of the dataset.
+## 🛠️ How to Run the Project
 
-
-#### (For Further information about the features see the ['Phishing Websites Features.docx'](https://archive.ics.uci.edu/ml/machine-learning-databases/00327/) .
-
-## Model Training
-
-The problem that we are trying to solve is a classification problem,more specifically a 'binary' classification problem. Classification problem comes under supervised machine learning. After feature extraction we'll train multiple ML models using our data and choose the model which gives us best accuracy.
-
-The machine learning models considered to train the dataset in this project are :
-- Decision Tree
-- Random Forest
-- Multilayer Perceptron
-
-(For this dataset MLP gave the highest accuracy (99%) with suitably balanced precision and recall,the trained model is saved [here](https://github.com/darekarbro/ML-Based-Phishing-URL-Detection.git))
-
-
-## 👨‍💻 To run (locally)
-1. Import this repository using git command
-```
-git clone https://github.com/deepeshdm/Phishing-Attack-Domain-Detection.git
-```
-2. Install all the required dependencies inside a virtual environment
-```
+### 1. Install Requirements
+```bash
 pip install -r requirements.txt
 ```
-3. After this just import the get_prediction() from API.py and pass the required arguments to make the prediction.Below is an example,copy the below code snippet and pass the required variable values
-```python
-from API import get_prediction
 
-# path to trained model
-model_path = r"/models/Malicious_URL_Prediction.h5"
+### 2. Train the Models
+Ensure `urldata.csv` is in the project directory, then run:
+```bash
+python train.py
+```
+*This will extract features, train all models, generate comparison charts in `Imgs/`, and save the best model inside `models/`.*
 
-# input url
-url = "www.tesla.com/"
+### 3. Run the API Server
+Start the FastAPI server:
+```bash
+uvicorn api:app --reload
+```
+*The API will be available at `http://127.0.0.1:8000`.*
 
-# returns probability of url being malicious
-prediction = get_prediction(url,model_path)
-print(prediction)
+### 4. Test Inference (Command Line)
+You can test the trained model on a URL directly from the command line using `predict.py`.
+
+**Fast Mode:**
+```bash
+python predict.py "http://suspicious-login-update.com"
+```
+**Detailed Mode (Shows extracted features):**
+```bash
+python predict.py "http://suspicious-login-update.com" --mode detailed
 ```
 
+---
 
-## 🔥 Web Interface & API Documentation
+## 🌐 API Usage
 
-In order to make it easy for anyone to interact with the model,we created a clean web interface using ReactJS and deployed it on Heroku cloud space. We also created a microservice Rest API, so that developers can use this model in their applications.
+**Endpoint:** `POST /predict`
 
-- Checkout Official Website : [phishr.vercel.com](https://phishr.vercel.app/)
-- Frontend Repository : [here](https://github.com/deepeshdm/phishr) (Newly Updated 2023)
-- Backend API repository : [here](https://github.com/deepeshdm/Phishr-API) (Newly Updated 2023)
+### Example Request (Fast Mode)
+```json
+{
+  "url": "http://secure-update-login.xyz",
+  "mode": "fast"
+}
+```
+### Example Response
+```json
+{
+  "probability": 85.4,
+  "message": "The URL has a phishing probability of 85.4%. You may consider a threshold like 50% to classify.",
+  "features": null,
+  "timestamp": "2026-04-21T21:00:00.000000"
+}
+```
 
-<div align="center">
-<img src="/Imgs/phishr-demo3.gif" width="90%"/>
-</div>
+---
 
-## Improvements to make
-This project was done just for the sake of learning end-to-end ML deployment,so far less focus was given on optimizing model performances.Further things which can be done for Improving this model :
-- Collecting more data which has less "sparse" features.
-- Reducing the number of features through feature-selection
-- Optimising the model for precion rather than recall.
+## 📊 Power BI Integration
+This project is built to seamlessly integrate with **Power BI** for dashboard visualization.
+Every prediction made by the API is automatically logged into `predictions_log.csv`. 
 
-### Related
-- https://github.com/ANG13T/url_genie
+**Logged fields include:**
+* `timestamp`
+* `url`
+* `probability`
+* All `20 extracted features`
 
-
-
+**How to use:**
+1. Open Power BI Desktop.
+2. Select **Get Data > Text/CSV** and choose `predictions_log.csv`.
+3. You can now build live dashboards tracking detected phishing attempts, plotting real-time average probabilities, and analyzing feature trends (e.g., how often `phish_keyword` appears).
