@@ -1,6 +1,9 @@
 import re
 from urllib.parse import urlparse, parse_qs
 import tldextract
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
+from tqdm import tqdm
 
 # Suspicious TLDs often used for phishing
 SUSPICIOUS_TLDS = {
@@ -114,3 +117,39 @@ def get_feature_names():
     Returns the list of feature names in the correct order.
     """
     return list(extract_features('http://example.com').keys())
+
+# ─────────────────────────────────────────────
+# Worker function (must be top-level for Windows multiprocessing)
+# ─────────────────────────────────────────────
+def _extract_single(url):
+    """Top-level worker: extracts features from a single URL."""
+    try:
+        return extract_features(str(url))
+    except Exception:
+        return {k: 0 for k in get_feature_names()}
+
+# ─────────────────────────────────────────────
+# Parallel feature extraction
+# ─────────────────────────────────────────────
+def extract_features_parallel(urls, n_workers=None):
+    """
+    Extract features for all URLs in parallel using ProcessPoolExecutor.
+    Uses chunked map for memory efficiency on 450k+ rows.
+    """
+    if n_workers is None:
+        n_workers = max(1, multiprocessing.cpu_count() - 1)
+
+    print(f"  → Using {n_workers} CPU cores for parallel extraction...")
+
+    chunk_size = max(500, len(urls) // (n_workers * 4))
+    # Use context manager to ensure executor is properly shut down
+    with ProcessPoolExecutor(max_workers=n_workers) as executor:
+        results = list(
+            tqdm(
+                executor.map(_extract_single, urls, chunksize=chunk_size),
+                total=len(urls),
+                desc="Extracting Features",
+                unit="url",
+            )
+        )
+    return results

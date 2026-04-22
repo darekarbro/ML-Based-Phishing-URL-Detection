@@ -19,3 +19,6 @@ predictions_log.csv
 models/
 urldata.csv
 urldata_extracted.csv
+
+# Personal docs
+PERSONAL_STUDY_GUIDE.md
