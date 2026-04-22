@@ -34,6 +34,9 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
+      {/* Pearl Mist Background with Top Glow */}
+      <div className="pearl-mist-bg" />
+
       <main className="app-container">
         
         {/* Header */}
