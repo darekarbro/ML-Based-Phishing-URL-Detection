@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import os
@@ -12,6 +13,15 @@ app = FastAPI(
     title="Phishing URL Detection API",
     description="API for detecting phishing URLs using machine learning.",
     version="1.0.0"
+)
+
+# Configure CORS to allow requests from the React frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Update to specific domain (e.g., https://your-site.com) when deploying
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Load model and scaler
