@@ -50,11 +50,11 @@ We extract 20 specific features to ensure strong performance without unnecessary
 
 ## 🤖 Machine Learning Models
 
-We tested four machine learning algorithms on the dataset:
+We test and compare four machine learning algorithms on the dataset:
 * **Decision Tree (DT)**
 * **Random Forest (RF)**
 * **Logistic Regression (LR)**
-* **Support Vector Machine (SVM)**
+* **XGBoost (Extreme Gradient Boosting)** — *Our Best Performer*
 
 ### Evaluation Metrics
 We compare models using:
@@ -63,7 +63,7 @@ We compare models using:
 * **Recall:** Ability to find all actual positive cases.
 * **F1-Score:** The balance between Precision and Recall.
 
-*The results and feature importances are automatically saved as graphs in the `Imgs/` directory after running `train.py`.*
+*The results and feature importances are automatically displayed as graphs inside the Jupyter Notebook.*
 
 ---
 
@@ -71,20 +71,19 @@ We compare models using:
 
 ### 1. Install Requirements
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 2. Train the Models
-Ensure `urldata.csv` is in the project directory, then run:
-```bash
-python train.py
-```
-*This will extract features, train all models, generate comparison charts in `Imgs/`, and save the best model inside `models/`.*
+Ensure `urldata.csv` is in the project directory, then open and run the Jupyter Notebook:
+**`Training_Pipeline.ipynb`**
+
+*This will extract features in parallel, train all models on the full 450k+ dataset, perform Hyperparameter Tuning, and save the best model inside `models/`.*
 
 ### 3. Run the API Server
 Start the FastAPI server:
 ```bash
-uvicorn api:app --reload
+python -m uvicorn API:app --reload
 ```
 *The API will be available at `http://127.0.0.1:8000`.*
 
@@ -116,8 +115,8 @@ python predict.py "http://suspicious-login-update.com" --mode detailed
 ### Example Response
 ```json
 {
-  "probability": 85.4,
-  "message": "The URL has a phishing probability of 85.4%. You may consider a threshold like 50% to classify.",
+  "probability": 98.4,
+  "message": "The URL has a phishing probability of 98.4%. You may consider a threshold like 50% to classify.",
   "features": null,
   "timestamp": "2026-04-21T21:00:00.000000"
 }

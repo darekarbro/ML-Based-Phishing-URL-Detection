@@ -1,6 +1,9 @@
 import re
 from urllib.parse import urlparse, parse_qs
 import tldextract
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
+from tqdm import tqdm
 
 # Suspicious TLDs often used for phishing
 SUSPICIOUS_TLDS = {
@@ -13,7 +16,7 @@ SHORTENERS = {
     'bit.ly', 'goo.gl', 'tinyurl.com', 'is.gd', 'cli.gs', 
     'yfrog.com', 'migre.me', 'ff.im', 'tiny.cc', 'url4.eu',
     'twit.ac', 'su.pr', 'twurl.nl', 'snipurl.com', 'short.to',
-    'BudURL.com', 'ping.fm', 'post.ly', 'Just.as', 'bkite.com',
+    'budurl.com', 'ping.fm', 'post.ly', 'just.as', 'bkite.com',
     'snipr.com', 'fic.kr', 'loopt.us', 'doiop.com', 'short.ie',
     'kl.am', 'wp.me', 'rubyurl.com', 'om.ly', 'to.ly', 'bit.do',
     't.co', 'lnkd.in', 'db.tt', 'qr.ae', 'adf.ly', 'bitly.com',
@@ -37,6 +40,7 @@ def extract_features(url):
         
     parsed_url = urlparse(url)
     ext = tldextract.extract(url)
+    hostname = (parsed_url.hostname or '').lower()
     
     features = {}
 
@@ -61,7 +65,7 @@ def extract_features(url):
     features['suspicious_tld'] = 1 if ext.suffix in SUSPICIOUS_TLDS else 0
     
     # Check if domain is an IP address
-    features['use_of_ip'] = 1 if re.match(r'^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$', ext.domain) else 0
+    features['use_of_ip'] = 1 if re.fullmatch(r'((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])', hostname) else 0
     
     features['has_https'] = 1 if parsed_url.scheme == 'https' else 0
 
@@ -78,7 +82,13 @@ def extract_features(url):
     features['query_param_count'] = len(query)
     
     # Check if TLD (like .com) appears in the path (e.g., domain.com/login.com)
-    features['tld_in_path'] = 1 if ext.suffix and ext.suffix in parsed_url.path else 0
+    path_lower = parsed_url.path.lower()
+    suffix = ext.suffix.lower()
+    if suffix:
+        tld_pattern = rf'\.{re.escape(suffix)}(?:[^a-z0-9]|$)'
+        features['tld_in_path'] = 1 if re.search(tld_pattern, path_lower) else 0
+    else:
+        features['tld_in_path'] = 0
 
     # ---------------- 🔹 Security Trick Features (3) ----------------
     # Double extension check in path (e.g., file.txt.exe)
@@ -86,7 +96,8 @@ def extract_features(url):
     
     features['has_fragment'] = 1 if parsed_url.fragment else 0
     
-    features['short_url'] = 1 if parsed_url.netloc in SHORTENERS else 0
+    normalized_host = hostname[4:] if hostname.startswith('www.') else hostname
+    features['short_url'] = 1 if normalized_host in SHORTENERS else 0
 
     # ---------------- 🔹 Intent Feature (1) ----------------
     features['phish_keyword'] = 1 if any(keyword in url.lower() for keyword in PHISH_KEYWORDS) else 0
@@ -106,3 +117,39 @@ def get_feature_names():
     Returns the list of feature names in the correct order.
     """
     return list(extract_features('http://example.com').keys())
+
+# ─────────────────────────────────────────────
+# Worker function (must be top-level for Windows multiprocessing)
+# ─────────────────────────────────────────────
+def _extract_single(url):
+    """Top-level worker: extracts features from a single URL."""
+    try:
+        return extract_features(str(url))
+    except Exception:
+        return {k: 0 for k in get_feature_names()}
+
+# ─────────────────────────────────────────────
+# Parallel feature extraction
+# ─────────────────────────────────────────────
+def extract_features_parallel(urls, n_workers=None):
+    """
+    Extract features for all URLs in parallel using ProcessPoolExecutor.
+    Uses chunked map for memory efficiency on 450k+ rows.
+    """
+    if n_workers is None:
+        n_workers = max(1, multiprocessing.cpu_count() - 1)
+
+    print(f"  → Using {n_workers} CPU cores for parallel extraction...")
+
+    chunk_size = max(500, len(urls) // (n_workers * 4))
+    # Use context manager to ensure executor is properly shut down
+    with ProcessPoolExecutor(max_workers=n_workers) as executor:
+        results = list(
+            tqdm(
+                executor.map(_extract_single, urls, chunksize=chunk_size),
+                total=len(urls),
+                desc="Extracting Features",
+                unit="url",
+            )
+        )
+    return results

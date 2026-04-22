@@ -1,6 +1,5 @@
 import argparse
 import requests
-import json
 
 API_URL = "http://127.0.0.1:8000/predict"
 
@@ -41,7 +40,7 @@ def main():
         print("="*50 + "\n")
         
     except requests.exceptions.ConnectionError:
-        print("\n❌ Error: Cannot connect to the API. Make sure the API is running with 'uvicorn api:app --reload'")
+        print("\n❌ Error: Cannot connect to the API. Make sure the API is running with 'uvicorn API:app --reload'")
     except requests.exceptions.HTTPError as err:
         print(f"\n❌ API Error: {err}")
         try:

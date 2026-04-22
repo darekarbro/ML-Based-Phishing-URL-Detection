@@ -1,44 +1,32 @@
-# High-Level Design (HLD): Phishing URL Detection System
+# High-Level Design (HLD): Phishing URL Detection
 
-## 1. Introduction
-The High-Level Design (HLD) document outlines the system architecture and the design overview of the Phishing URL Detection System. This system leverages supervised machine learning to classify incoming URLs, determining the probability that they are malicious.
+## 1. Design Overview
+The Phishing URL Detection system is a modular application designed for high-performance URL classification. It separates the concerns of model training (research phase) and real-time inference (production phase).
 
-## 2. System Scope
-The system handles:
-1. **Model Training (Offline)**: Processing a historical dataset of ~450k URLs, extracting specific attributes, and fitting predictive ML algorithms (SVM, RF, DT, LR).
-2. **Inference (Online)**: A real-time web API that accepts live URLs, extracts their structural/domain properties dynamically, and returns a probabilistic risk score.
-3. **Analytics (Logging)**: Real-time generation of CSV logs configured for BI dashboard ingestion.
+## 2. Main Components
 
-## 3. Component Diagram
+### 2.1 Training Pipeline (Jupyter Notebook)
+* **Goal**: Analyze 450,000 URLs and produce a highly accurate classifier.
+* **Logic**:
+  1. Data Loading.
+  2. Parallel Feature Extraction.
+  3. Model Comparison.
+  4. Hyperparameter Tuning (XGBoost).
+  5. Artifact Export (`best_model.pkl`).
 
-```mermaid
-graph LR
-    subgraph Data Pipeline
-        A[(urldata.csv)] --> B(Feature Extraction Pipeline)
-        B --> C[Model Training Module]
-        C --> D[(best_model.pkl)]
-    end
+### 2.2 Inference Engine (FastAPI)
+* **Goal**: Provide a sub-50ms response for single URL classification.
+* **Workflow**:
+  1. Receive URL via POST request.
+  2. Call the shared `feature_extraction` module.
+  3. Load `best_model.pkl` from disk (cached).
+  4. Return probability score.
 
-    subgraph Serving Pipeline
-        E[Client Request] --> F[FastAPI Endpoint]
-        F --> G(Live Feature Extractor)
-        D -.-> H[Prediction Engine]
-        G --> H
-        H --> I(Probability Calculator)
-        I --> J[JSON Response]
-    end
-```
+### 2.3 Data Integration (Power BI)
+* **Goal**: Business Intelligence and live monitoring.
+* **Mechanism**: Continuous logging to CSV.
 
-## 4. Technology Stack
-* **Language**: Python 3.8+
-* **Machine Learning**: Scikit-learn (SVM, Random Forest, Decision Tree, Logistic Regression)
-* **Data Processing**: Pandas, NumPy
-* **Feature Extraction**: `tldextract`, `urllib`
-* **API Framework**: FastAPI, Uvicorn
-* **Data Visualization (Evaluation)**: Matplotlib, Seaborn
-* **Business Intelligence (External)**: Power BI
-
-## 5. Non-Functional Requirements
-1. **Performance**: Feature extraction and inference must complete in < 500ms per URL.
-2. **Explainability**: The system must not merely output "Phishing/Legitimate" but provide a probability spectrum.
-3. **Modularity**: Model training and inference must be strictly decoupled.
+## 3. Data Flow
+1. **Input**: Raw URL string.
+2. **Process**: Heuristic features extracted -> Scaling applied -> XGBoost Prediction.
+3. **Output**: Percentage probability of phishing.

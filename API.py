@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import joblib
 import os
 import numpy as np
+import pandas as pd
 from feature_extraction import extract_features, get_feature_names
 import datetime
 
@@ -63,17 +64,18 @@ def predict_url(request: URLRequest):
     
     if not url:
         raise HTTPException(status_code=400, detail="URL cannot be empty.")
+    if mode not in {"fast", "detailed"}:
+        raise HTTPException(status_code=400, detail="Invalid mode. Use 'fast' or 'detailed'.")
 
     try:
         # Extract features
         features_dict = extract_features(url)
         feature_names = get_feature_names()
         
-        # Ensure features are in the exact order the model expects
+        # Keep feature names while transforming to avoid silent schema drift.
         feature_values = [features_dict[name] for name in feature_names]
-        
-        # Scale features
-        features_scaled = scaler.transform([feature_values])
+        feature_df = pd.DataFrame([feature_values], columns=feature_names)
+        features_scaled = scaler.transform(feature_df)
         
         # Predict probability
         # Assuming index 1 is the 'Phishing' class
@@ -100,4 +102,4 @@ def predict_url(request: URLRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred during prediction: {str(e)}")
 
-# To run the API, use: uvicorn api:app --reload
+# To run the API, use: uvicorn API:app --reload
