@@ -92,7 +92,7 @@ function FeatureRow({ name, value }) {
   return (
     <div className={`feature-row ${highlight ? 'highlight' : ''}`}>
       <div className="feature-name-wrapper">
-        <span className="feature-name" title={name}>{name.replace(/_/g, ' ')}</span>
+        <span className="feature-name">{name.replace(/_/g, ' ')}</span>
         <div className="tooltip-trigger">
           <Info size={12} strokeWidth={2.5} className="info-icon" />
           <div className="tooltip-content">{description}</div>
@@ -171,7 +171,15 @@ export default function ResultCard({ result, url }) {
                   
                   {/* Left Column: Radar Chart */}
                   <div className="telemetry-visual">
-                    <h4 className="telemetry-col-title">Anomaly Profile (Visual)</h4>
+                    <div className="telemetry-col-header">
+                      <h4 className="telemetry-col-title">Anomaly Profile (Visual)</h4>
+                      <div className="tooltip-trigger">
+                        <Info size={14} strokeWidth={2.5} className="info-icon" />
+                        <div className="tooltip-content tooltip-down tooltip-right" style={{ width: '220px' }}>
+                          Aggregates the 20 raw features into 4 intuitive risk dimensions (0-100%). Higher scores indicate stronger phishing signals in that category.
+                        </div>
+                      </div>
+                    </div>
                     <div className="chart-container">
                       <ResponsiveContainer width="100%" height="100%">
                         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
