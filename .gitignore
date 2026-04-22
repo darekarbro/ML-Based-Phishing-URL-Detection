@@ -15,8 +15,7 @@ predictions_log.csv
 *.db
 *.log
 
-# Models and data
-models/
+# Data
 urldata.csv
 urldata_extracted.csv
 
