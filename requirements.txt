@@ -7,3 +7,5 @@ matplotlib
 seaborn
 tldextract
 joblib
+tqdm
+xgboost
