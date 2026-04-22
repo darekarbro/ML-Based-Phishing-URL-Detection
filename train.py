@@ -166,7 +166,7 @@ def tune_best_model(model, model_name, X_train, y_train):
     search = RandomizedSearchCV(
         model,
         param_grid,
-        n_iter=10,
+        n_iter=5,
         cv=3,
         scoring="f1",
         n_jobs=-1,
