@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Link2, ArrowRight, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 const QUICK_TESTS = [
-  { label: '🔴 Suspicious', url: 'http://secure-login-update.xyz/verify?user=12345' },
-  { label: '🟢 Safe', url: 'https://www.google.com' },
-  { label: '🔴 Phishing', url: 'http://paypa1-account-verify.tk/login' },
+  { label: 'Suspicious', url: 'http://secure-login-update.xyz/verify?user=12345', icon: ShieldAlert, color: '#ff453a' },
+  { label: 'Safe', url: 'https://www.apple.com', icon: ShieldCheck, color: '#30d158' },
 ];
 
 export default function SearchBar({ onSearch, isLoading }) {
@@ -16,28 +17,36 @@ export default function SearchBar({ onSearch, isLoading }) {
     onSearch(trimmed);
   };
 
-  const handleQuickTest = (url) => {
-    setInputVal(url);
-    onSearch(url);
-  };
-
   return (
     <section className="search-section">
-      <label className="search-label" htmlFor="url-input">
-        Enter a URL to analyze
-      </label>
-      <form onSubmit={handleSubmit}>
+      <motion.label 
+        className="search-label" 
+        htmlFor="url-input"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.5 }}
+      >
+        Target URL Analysis
+      </motion.label>
+      
+      <motion.form 
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 200, damping: 20 }}
+      >
         <div className="search-box">
-          <span className="search-icon">🔗</span>
+          <Link2 className="search-icon" size={20} strokeWidth={2} />
           <input
             id="url-input"
             className="search-input"
             type="text"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
-            placeholder="https://example.com/path?param=value"
+            placeholder="https://example.com"
             autoComplete="off"
             spellCheck={false}
+            disabled={isLoading}
           />
           <button
             id="analyze-btn"
@@ -45,25 +54,35 @@ export default function SearchBar({ onSearch, isLoading }) {
             type="submit"
             disabled={isLoading || !inputVal.trim()}
           >
-            {isLoading ? 'Analyzing...' : 'Analyze →'}
+            <span>Scan</span>
+            <ArrowRight size={18} strokeWidth={2.5} style={{ marginLeft: 6 }} />
           </button>
         </div>
-      </form>
+      </motion.form>
 
-      <div className="quick-tests">
-        <span className="quick-label">Try:</span>
-        {QUICK_TESTS.map(({ label, url }) => (
+      <motion.div 
+        className="quick-tests"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+      >
+        <span className="quick-label">Presets:</span>
+        {QUICK_TESTS.map(({ label, url, icon: Icon, color }) => (
           <button
             key={url}
             className="quick-pill"
-            onClick={() => handleQuickTest(url)}
+            onClick={() => {
+              setInputVal(url);
+              onSearch(url);
+            }}
             disabled={isLoading}
-            title={url}
+            type="button"
           >
+            <Icon size={12} color={color} strokeWidth={2.5} />
             {label}
           </button>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

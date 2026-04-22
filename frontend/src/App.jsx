@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Shield, AlertCircle } from 'lucide-react';
 import './index.css';
 import { analyzeUrl } from './api';
 import SearchBar from './components/SearchBar';
@@ -17,10 +19,14 @@ export default function App() {
     setAnalyzedUrl(url);
 
     try {
+      // Small artificial delay to let the user see the scanning animation
+      // since local API might be too fast to appreciate the UX
+      await new Promise(r => setTimeout(r, 800)); 
+      
       const data = await analyzeUrl(url, 'detailed');
       setResult(data);
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred. Is the API server running?');
+      setError(err.message || 'Connection to inference engine failed.');
     } finally {
       setIsLoading(false);
     }
@@ -28,53 +34,99 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
-      {/* Animated background orbs */}
-      <div className="bg-orb bg-orb-1" aria-hidden="true" />
-      <div className="bg-orb bg-orb-2" aria-hidden="true" />
-      <div className="bg-orb bg-orb-3" aria-hidden="true" />
-
       <main className="app-container">
+        
         {/* Header */}
         <header className="app-header">
-          <div className="logo-wrapper" aria-hidden="true">
-            <span className="logo-icon">🛡️</span>
-          </div>
-          <h1 className="app-title">Phishing URL Detector</h1>
-          <p className="app-subtitle">
-            Paste any URL below and our ML model will instantly analyze it for phishing threats.
-          </p>
+          <motion.div 
+            className="logo-wrapper"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
+            <Shield size={32} strokeWidth={1.5} />
+          </motion.div>
+          <motion.h1 
+            className="app-title"
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+          >
+            Phishing URL Detection
+          </motion.h1>
+          <motion.p 
+            className="app-subtitle"
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            Enterprise-grade machine learning to identify malicious links and zero-day threats in real-time.
+          </motion.p>
         </header>
 
-        {/* Search */}
+        {/* Input Region */}
         <SearchBar onSearch={handleSearch} isLoading={isLoading} />
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="loading-card" role="status" aria-live="polite">
-            <div className="spinner" aria-hidden="true" />
-            <p className="loading-text">Extracting features &amp; running ML model…</p>
-          </div>
-        )}
+        {/* Dynamic State Region */}
+        <div style={{ minHeight: '300px' }}>
+          <AnimatePresence mode="wait">
+            
+            {/* Scanning State */}
+            {isLoading && (
+              <motion.div 
+                key="loading"
+                className="scanning-card"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="scanning-visual">
+                  <motion.div 
+                    className="scanning-line"
+                    animate={{ 
+                      x: ['-100%', '350%'] 
+                    }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 1.5, 
+                      ease: "linear" 
+                    }}
+                  />
+                </div>
+                <div className="scanning-text">Analyzing URL Topology</div>
+                <div className="scanning-subtext">Extracting features and querying XGBoost model...</div>
+              </motion.div>
+            )}
 
-        {/* Error State */}
-        {error && !isLoading && (
-          <div className="error-card" role="alert">
-            <div className="error-icon" aria-hidden="true">⚠️</div>
-            <div className="error-title">Analysis Failed</div>
-            <p className="error-msg">{error}</p>
-          </div>
-        )}
+            {/* Error State */}
+            {error && !isLoading && (
+              <motion.div 
+                key="error"
+                className="error-card"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+              >
+                <AlertCircle className="error-icon" size={40} strokeWidth={1.5} />
+                <div className="error-title">Analysis Interrupted</div>
+                <p className="error-msg">{error}</p>
+              </motion.div>
+            )}
 
-        {/* Result */}
-        {result && !isLoading && (
-          <ResultCard result={result} url={analyzedUrl} />
-        )}
+            {/* Result State */}
+            {result && !isLoading && (
+              <ResultCard key="result" result={result} url={analyzedUrl} />
+            )}
+
+          </AnimatePresence>
+        </div>
       </main>
 
       <footer className="app-footer">
-        <p className="footer-text">
-          ML-Based Phishing Detection · Powered by XGBoost &amp; FastAPI
-        </p>
+        <div className="footer-text">
+          <Shield size={14} /> Core Engine: FastAPI &amp; XGBoost
+        </div>
       </footer>
     </div>
   );
