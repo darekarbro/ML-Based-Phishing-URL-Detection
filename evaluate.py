@@ -56,29 +56,35 @@ def plot_model_comparison(results_dict):
     plt.savefig('Imgs/model_comparison.png')
     plt.close()
 
-def plot_feature_importance(model, feature_names, top_n=10):
+def plot_feature_importance(model, feature_names, top_n=10, model_name="model"):
     """
-    Plots feature importance for Tree-based models (like Random Forest).
+    Plots feature importance for Tree-based models (like Random Forest, XGBoost).
+    Saves a separate file per model so plots don't overwrite each other.
     """
     if hasattr(model, 'feature_importances_'):
         importances = model.feature_importances_
         indices = np.argsort(importances)[::-1][:top_n]
         
         plt.figure(figsize=(10, 6))
-        plt.title(f"Top {top_n} Feature Importances")
+        plt.title(f"Top {top_n} Feature Importances — {model_name}")
         plt.bar(range(top_n), importances[indices], align="center")
         plt.xticks(range(top_n), [feature_names[i] for i in indices], rotation=45, ha='right')
         plt.tight_layout()
-        plt.savefig('Imgs/feature_importance.png')
+        safe_name = model_name.replace(" ", "_")
+        plt.savefig(f'Imgs/feature_importance_{safe_name}.png')
         plt.close()
 
 def plot_class_distribution(y):
     """
     Plots class distribution of the dataset.
+    Uses DataFrame+column pattern for seaborn 0.13+ compatibility.
     """
-    plt.figure(figsize=(6,4))
-    sns.countplot(x=y)
-    plt.title('Class Distribution (0: Legitimate, 1: Phishing)')
+    df_plot = pd.DataFrame({'Class': pd.Series(y).map({0: 'Legitimate (0)', 1: 'Phishing (1)'})})
+    plt.figure(figsize=(6, 4))
+    sns.countplot(data=df_plot, x='Class', order=['Legitimate (0)', 'Phishing (1)'])
+    plt.title('Class Distribution')
+    plt.xlabel('Class')
+    plt.ylabel('Count')
     plt.tight_layout()
     plt.savefig('Imgs/class_distribution.png')
     plt.close()

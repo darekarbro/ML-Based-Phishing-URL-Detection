@@ -71,7 +71,7 @@ We compare models using:
 
 ### 1. Install Requirements
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 2. Train the Models
@@ -84,7 +84,7 @@ python train.py
 ### 3. Run the API Server
 Start the FastAPI server:
 ```bash
-uvicorn api:app --reload
+python -m uvicorn API:app --reload
 ```
 *The API will be available at `http://127.0.0.1:8000`.*
 

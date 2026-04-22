@@ -1,27 +1,46 @@
 import joblib
+import os
+import sys
 from feature_extraction import extract_features, get_feature_names
 
 url = "http://google.com"
 
-# In train.py we trained all models but saved SVM as best_model.pkl.
-# Wait, train.py only saved the best model. To use RF, I'd have to retrain it and save it.
-# Let's write a script to just train RF on the extracted dataset and test it.
+# train.py saves only the best model as best_model.pkl.
+# This script trains a standalone Random Forest on the extracted dataset for quick testing.
+# Note: Run train.py first to generate urldata_extracted.csv and models/scaler.pkl.
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-df = pd.read_csv('urldata_extracted.csv')
-X = df[get_feature_names()]
-y = df['target']
+def main():
+    extracted_path = 'urldata_extracted.csv'
+    scaler_path = 'models/scaler.pkl'
 
-scaler = joblib.load('models/scaler.pkl')
-X_scaled = scaler.transform(X)
+    if not os.path.exists(extracted_path):
+        print("Error: 'urldata_extracted.csv' not found. Run 'python train.py' first.")
+        sys.exit(1)
+    if not os.path.exists(scaler_path):
+        print("Error: 'models/scaler.pkl' not found. Run 'python train.py' first.")
+        sys.exit(1)
 
-rf = RandomForestClassifier(n_estimators=100, random_state=42)
-rf.fit(X_scaled, y)
+    df = pd.read_csv(extracted_path)
+    feature_names = get_feature_names()
+    X = df[feature_names]
+    y = df['target']
 
-features_dict = extract_features(url)
-features_values = [features_dict[name] for name in get_feature_names()]
-features_scaled = scaler.transform([features_values])
+    scaler = joblib.load(scaler_path)
+    X_scaled = scaler.transform(X)
 
-prob = rf.predict_proba(features_scaled)[0][1] * 100
-print(f"RF Probability for {url}: {prob}%")
+    rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf.fit(X_scaled, y)
+
+    features_dict = extract_features(url)
+    features_values = [features_dict[name] for name in feature_names]
+    feature_df = pd.DataFrame([features_values], columns=feature_names)
+    features_scaled = scaler.transform(feature_df)
+
+    prob = rf.predict_proba(features_scaled)[0][1] * 100
+    print(f"RF Probability for {url}: {prob}%")
+
+
+if __name__ == "__main__":
+    main()

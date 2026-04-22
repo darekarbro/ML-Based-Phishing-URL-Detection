@@ -9,3 +9,4 @@ tldextract
 joblib
 tqdm
 xgboost
+requests

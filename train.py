@@ -44,19 +44,19 @@ def extract_features_parallel(urls, n_workers=None):
     if n_workers is None:
         n_workers = max(1, multiprocessing.cpu_count() - 1)
 
-    print(f"  >> Using {n_workers} CPU cores for parallel extraction...")
+    print(f"  → Using {n_workers} CPU cores for parallel extraction...")
 
     chunk_size = max(500, len(urls) // (n_workers * 4))
-    results = list(
-        tqdm(
-            ProcessPoolExecutor(max_workers=n_workers).map(
-                _extract_single, urls, chunksize=chunk_size
-            ),
-            total=len(urls),
-            desc="Extracting Features",
-            unit="url",
+    # Use context manager to ensure executor is properly shut down
+    with ProcessPoolExecutor(max_workers=n_workers) as executor:
+        results = list(
+            tqdm(
+                executor.map(_extract_single, urls, chunksize=chunk_size),
+                total=len(urls),
+                desc="Extracting Features",
+                unit="url",
+            )
         )
-    )
     return results
 
 
@@ -71,31 +71,42 @@ def prepare_data(raw_csv_path="urldata.csv", extracted_csv_path="urldata_extract
     needs_extraction = True
 
     if os.path.exists(extracted_csv_path):
-        # Fast row-count check using a single lightweight column
-        extracted_count = pd.read_csv(extracted_csv_path, usecols=["target"]).shape[0]
-        raw_count = pd.read_csv(raw_csv_path, usecols=["url"]).shape[0]
-
-        if extracted_count >= int(raw_count * 0.99):
-            print(f"Loading pre-extracted features from '{extracted_csv_path}' ({extracted_count} rows)...")
-            df = pd.read_csv(extracted_csv_path)
-            needs_extraction = False
-        else:
-            print(
-                f"Stale cache detected ({extracted_count} rows cached vs {raw_count} in raw data). "
-                "Re-extracting all features..."
-            )
+        try:
+            # Fast row-count check using a single lightweight column
+            extracted_count = pd.read_csv(extracted_csv_path, usecols=["target"]).shape[0]
+            raw_count = pd.read_csv(raw_csv_path, usecols=["url"]).shape[0]
+        except Exception as e:
+            print(f"Invalid cached feature file '{extracted_csv_path}' ({e}). Re-extracting all features...")
             os.remove(extracted_csv_path)
-
+        else:
+            if extracted_count >= int(raw_count * 0.99):
+                print(f"Loading pre-extracted features from '{extracted_csv_path}' ({extracted_count} rows)...")
+                df = pd.read_csv(extracted_csv_path)
+                needs_extraction = False
+            else:
+                print(
+                    f"Stale cache detected ({extracted_count} rows cached vs {raw_count} in raw data). "
+                    "Re-extracting all features..."
+                )
+                os.remove(extracted_csv_path)
 
     if needs_extraction:
         print(f"Reading raw data from '{raw_csv_path}'...")
         df_raw = pd.read_csv(raw_csv_path)
-        print(f"  >> {len(df_raw):,} rows loaded.")
+        print(f"  → {len(df_raw):,} rows loaded.")
+
+        if "url" not in df_raw.columns:
+            raise ValueError("Input dataset must contain a 'url' column.")
 
         # Determine target column
-        target_col = "result" if "result" in df_raw.columns else "label"
+        if "result" in df_raw.columns:
+            target_col = "result"
+        elif "label" in df_raw.columns:
+            target_col = "label"
+        else:
+            raise ValueError("Input dataset must contain either 'result' or 'label' target column.")
 
-        # Convert string labels to 0 / 1
+        # Convert string labels → 0 / 1
         if df_raw[target_col].dtype == object:
             targets = np.where(df_raw[target_col].str.lower() == "benign", 0, 1)
         else:
@@ -113,7 +124,7 @@ def prepare_data(raw_csv_path="urldata.csv", extracted_csv_path="urldata_extract
 
         print(f"\nSaving extracted features to '{extracted_csv_path}'...")
         df.to_csv(extracted_csv_path, index=False)
-        print("  >> Saved successfully.\n")
+        print("  → Saved successfully.\n")
 
     # Return feature matrix and labels
     X = df[get_feature_names()]
@@ -163,8 +174,8 @@ def tune_best_model(model, model_name, X_train, y_train):
         verbose=1,
     )
     search.fit(X_train, y_train)
-    print(f"  >> Best params : {search.best_params_}")
-    print(f"  >> Best CV F1  : {search.best_score_:.4f}")
+    print(f"  → Best params : {search.best_params_}")
+    print(f"  → Best CV F1  : {search.best_score_:.4f}")
     return search.best_estimator_
 
 
@@ -173,7 +184,7 @@ def tune_best_model(model, model_name, X_train, y_train):
 # ─────────────────────────────────────────────
 def main():
     print("=" * 60)
-    print("  Phishing URL Detection - Full Dataset Training Pipeline")
+    print("  Phishing URL Detection — Full Dataset Training Pipeline")
     print("=" * 60 + "\n")
 
     # ── 1. Data preparation ──────────────────────────────────────
@@ -221,9 +232,9 @@ def main():
     best_f1 = 0.0
     best_model = None
 
-    # 5. Train & evaluate each model
+    # ── 5. Train & evaluate each model ───────────────────────────
     for name, model in models.items():
-        print(f"--- Training : {name} ---")
+        print(f"─── Training : {name} ───")
         model.fit(X_train_scaled, y_train)
 
         y_pred = model.predict(X_test_scaled)
@@ -239,7 +250,7 @@ def main():
 
         if name in ("Random Forest", "XGBoost"):
             print(f"Generating Feature Importance Plot for {name}...")
-            plot_feature_importance(model, feature_names)
+            plot_feature_importance(model, feature_names, model_name=name)
 
     # ── 6. Model comparison chart ────────────────────────────────
     print("Generating Model Comparison Plot...")
@@ -247,14 +258,13 @@ def main():
 
     # ── 7. Hyperparameter tuning on the best model ───────────────
     print(f"\nBest initial model : {best_model_name}  |  F1 = {best_f1:.4f}")
-
     tuned_model = tune_best_model(best_model, best_model_name, X_train_scaled, y_train)
 
     y_pred_tuned = tuned_model.predict(X_test_scaled)
     tuned_metrics = evaluate_model(f"{best_model_name} (Tuned)", y_test, y_pred_tuned)
 
     if tuned_metrics["F1"] >= best_f1:
-        print(f"  >> Tuned model F1 : {tuned_metrics['F1']:.4f}  (was {best_f1:.4f})")
+        print(f"  → Tuned model F1 : {tuned_metrics['F1']:.4f}  (was {best_f1:.4f})")
         best_model = tuned_model
         best_f1 = tuned_metrics["F1"]
 
@@ -265,8 +275,8 @@ def main():
     joblib.dump(scaler, "models/scaler.pkl")
 
     print("\n" + "=" * 60)
-    print(f"  DONE - Best model : {best_model_name}  |  F1 = {best_f1:.4f}")
-    print("  Saved >> models/best_model.pkl  &  models/scaler.pkl")
+    print(f"  DONE — Best model : {best_model_name}  |  F1 = {best_f1:.4f}")
+    print("  Saved → models/best_model.pkl  &  models/scaler.pkl")
     print("=" * 60)
 
 
