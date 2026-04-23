@@ -50,10 +50,15 @@
 .chart-container {
   width: 100%;
   height: 250px;
-  background: var(--bg-secondary);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 16px 0;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.02);
+}
+
+[data-theme='dark'] .chart-container {
+  background: var(--bg-secondary);
 }
 
 /* Right Column: Categorized Data */
@@ -92,13 +97,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255,255,255,0.02);
+  background: var(--bg-card);
   border-radius: 6px;
   padding: 6px 10px;
 }
 
 .feature-row:hover {
-  background: rgba(255,255,255,0.04);
+  background: var(--bg-card-hover);
 }
 
 .feature-row .feature-name {
@@ -115,7 +120,7 @@
 }
 
 .feature-row.highlight {
-  background: rgba(255, 69, 58, 0.08);
+  background: var(--danger-bg);
   border-left: 2px solid var(--danger-color);
 }
 
@@ -149,25 +154,30 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(4px) scale(0.95);
-  background: rgba(30, 30, 32, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.7rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 400;
   white-space: normal;
   width: max-content;
-  max-width: 200px;
-  text-align: center;
+  max-width: 220px;
+  text-align: left;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   pointer-events: none;
   margin-bottom: 8px;
-  line-height: 1.4;
+  line-height: 1.5;
+}
+
+[data-theme='dark'] .tooltip-content {
+  background: rgba(30, 30, 32, 0.9);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
 
 .tooltip-trigger:hover .tooltip-content {
