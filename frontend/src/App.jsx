@@ -1,31 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, AlertCircle } from 'lucide-react';
 import './index.css';
 import { analyzeUrl } from './api';
 import SearchBar from './components/SearchBar';
 import ResultCard from './components/ResultCard';
-import ThemeToggle from './components/ThemeToggle';
-import ModeSelector from './components/ModeSelector';
 
 export default function App() {
   const [result, setResult] = useState(null);
   const [analyzedUrl, setAnalyzedUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [mode, setMode] = useState('detailed');
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'dark';
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
 
   const handleSearch = async (url) => {
     setIsLoading(true);
@@ -35,9 +20,10 @@ export default function App() {
 
     try {
       // Small artificial delay to let the user see the scanning animation
+      // since local API might be too fast to appreciate the UX
       await new Promise(r => setTimeout(r, 800)); 
       
-      const data = await analyzeUrl(url, mode);
+      const data = await analyzeUrl(url, 'detailed');
       setResult(data);
     } catch (err) {
       setError(err.message || 'Connection to inference engine failed.');
@@ -48,8 +34,6 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
-      <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-
       {/* Pearl Mist Background with Top Glow */}
       <div className="pearl-mist-bg" />
 
@@ -63,7 +47,7 @@ export default function App() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <Shield size={36} strokeWidth={1.5} />
+            <Shield size={32} strokeWidth={1.5} />
           </motion.div>
           <motion.h1 
             className="app-title"
@@ -82,9 +66,6 @@ export default function App() {
             Enterprise-grade machine learning to identify malicious links and zero-day threats in real-time.
           </motion.p>
         </header>
-
-        {/* Mode Selector */}
-        <ModeSelector mode={mode} setMode={setMode} />
 
         {/* Input Region */}
         <SearchBar onSearch={handleSearch} isLoading={isLoading} />

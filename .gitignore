@@ -21,3 +21,6 @@ urldata_extracted.csv
 
 # Personal docs
 PERSONAL_STUDY_GUIDE.md
+
+# Models and scalers
+models/
