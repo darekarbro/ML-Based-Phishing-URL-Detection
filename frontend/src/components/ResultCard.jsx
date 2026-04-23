@@ -104,7 +104,7 @@ function FeatureRow({ name, value }) {
 }
 
 export default function ResultCard({ result, url }) {
-  const [showFeatures, setShowFeatures] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(true);
   const { probability, features } = result;
   const verdict = getVerdict(probability);
   const Icon = verdict.icon;
@@ -183,10 +183,16 @@ export default function ResultCard({ result, url }) {
                     <div className="chart-container">
                       <ResponsiveContainer width="100%" height="100%">
                         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                          <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                          <PolarAngleAxis dataKey="subject" tick={{ fill: '#86868b', fontSize: 11 }} />
+                          <PolarGrid stroke="var(--chart-grid)" />
+                          <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }} />
                           <Tooltip 
-                            contentStyle={{ backgroundColor: 'rgba(20,20,22,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                            contentStyle={{ 
+                              backgroundColor: 'var(--bg-card)', 
+                              border: '1px solid var(--border-color)', 
+                              borderRadius: '12px',
+                              backdropFilter: 'blur(10px)',
+                              boxShadow: 'var(--shadow-card)'
+                            }}
                             itemStyle={{ color: verdict.color }}
                           />
                           <Radar 

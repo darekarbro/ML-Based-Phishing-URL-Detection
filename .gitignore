@@ -22,5 +22,9 @@ urldata_extracted.csv
 # Personal docs
 PERSONAL_STUDY_GUIDE.md
 
+# Node modules
+node_modules/
+frontend/node_modules/
+
 # Models and scalers
-models/
+models/best_model.pkl
