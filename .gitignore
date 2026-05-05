@@ -28,3 +28,6 @@ frontend/node_modules/
 
 # Models and scalers
 models/best_model.pkl
+models/scaler.pkl
+
+archive
