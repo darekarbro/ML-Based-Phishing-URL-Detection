@@ -4,99 +4,172 @@
 
 ## 📌 PROJECT OVERVIEW
 
-**Project Name:** Phishing Attack Domain Detection System  
+**Project Name:** Phishing URL Detection Using Machine Learning  
 **Type:** Machine Learning Classification Project  
 **Domain:** Cybersecurity  
-**Objective:** Classify URLs as legitimate or malicious (phishing)
+**Objective:** Classify URLs as legitimate or malicious (phishing) in real-time
 
 ### Key Metrics
-- **Model Accuracy:** 99%
-- **Training Samples:** 10,000 URLs (5,000 legitimate + 5,000 malicious)
-- **Features Extracted:** 16 numerical features per URL
-- **Model Type:** Deep Neural Network (Multilayer Perceptron)
+- **Training Dataset:** ~450,000 URLs (balanced legitimate and malicious)
+- **Features Extracted:** 20 highly-engineered features per URL
+- **Model Type:** XGBoost (Extreme Gradient Boosting) — Best performer
+- **Inference Response Time:** <50ms per URL
+- **Deployment:** FastAPI REST API with browser extension & React web UI
 
 ---
 
-## 🏗️ ARCHITECTURE DESIGN
+## 🏗️ SYSTEM ARCHITECTURE
 
-### DPR (Design Phase Review)
+### Problem Statement
+- Phishing attacks are one of the most common cyber threats
+- Users need real-time detection before clicking suspicious links
+- Manual inspection is time-consuming and scales poorly
+- A reliable ML-based URL classifier can significantly mitigate risks
 
-**Problem Statement:**
-- Phishing attacks cost companies billions annually
-- Need automated system to detect malicious URLs before users click them
-- Manual inspection is time-consuming and error-prone
-
-**Solution Strategy:**
-- Use Machine Learning to learn patterns from legitimate vs. phishing URLs
-- Extract numerical features from URLs (length, character counts, structure)
-- Train a neural network classifier
-- Deploy as REST API for real-time predictions
-
----
-
-### HLD (High-Level Design)
-
-```
-INPUT LAYER
-    ↓
-┌─────────────────────────────────┐
-│   1. Feature Extraction         │
-│   ├─ URL length features (5)    │
-│   ├─ Character count features   │
-│   └─ Binary features (IP, etc)  │
-├─ Output: 16 numerical features  │
-└─────────────────────────────────┘
-    ↓
-┌─────────────────────────────────┐
-│   2. Pre-trained ML Model       │
-│   ├─ Input Layer: 16 neurons    │
-│   ├─ Hidden Layer 1: 32 neurons │
-│   ├─ Hidden Layer 2: 16 neurons │
-│   ├─ Hidden Layer 3: 8 neurons  │
-│   └─ Output Layer: 1 neuron     │
-│        (Sigmoid - gives 0-1)    │
-└─────────────────────────────────┘
-    ↓
-OUTPUT: Probability (0-100%)
-- 0-50% = Likely LEGITIMATE
-- 50-100% = Likely MALICIOUS
-```
+### Solution Strategy
+- Engineer 20 distinct structural, domain, and behavioral features from raw URLs
+- Train multiple ML models (Decision Tree, Random Forest, Logistic Regression, XGBoost)
+- Select XGBoost as the best performer through empirical evaluation
+- Deploy via FastAPI for real-time inference with sub-50ms latency
+- Provide multiple interfaces: REST API, React web application, browser extension
+- Log all predictions to enable Power BI dashboards for monitoring
 
 ---
 
-### LLD (Low-Level Design)
+## 📊 FEATURE ENGINEERING (20 FEATURES)
 
-#### **File Structure & Dependencies**
+The system extracts 20 carefully-designed features across 5 categories:
 
-```
-Project Root
-│
-├─ Url_Features.py           ← 16 feature extraction functions
-│  ├─ fd_length()            ← First directory length
-│  ├─ digit_count()          ← Count of digits
-│  ├─ letter_count()         ← Count of alphabets
-│  ├─ no_of_dir()            ← Number of '/' 
-│  ├─ having_ip_address()    ← Detects IP addresses
-│  ├─ hostname_length()      ← Domain name length
-│  ├─ url_length()           ← Total URL length
-│  └─ get_counts()           ← Counts special chars: -@?%=.
-│
-├─ Feature_Extractor.py      ← Combines all 16 features into array
-│  └─ extract_features()     ← Main function
-│
-├─ API.py                    ← Core prediction logic
-│  └─ get_prediction()       ← Loads model + predicts
-│
-├─ Main.py                   ← User entry point (fixed path issue)
-│
-├─ models/
-│  └─ Malicious_URL_Prediction.h5  ← Pre-trained model
-│
-└─ Notebooks/                ← Training & analysis
-   ├─ Data_Collection_and_Feature_Extraction_(Phishing_urls).ipynb
-   ├─ Training_Classification_Model.ipynb
-   └─ Training_Phishing_classifier.ipynb
-```
+### 🔹 Structural Features (7)
+1. **url_length** - Total character count
+2. **hostname_length** - Domain length
+3. **count.** - Number of dots (period)
+4. **count-digits** - Numeric digits in URL
+5. **count-** - Hyphen count (phishers use to mimic legitimate domains)
+6. **count@** - @ symbol count (used to hide actual domain)
+7. **count%** - Percent symbol count (URL encoding obfuscation)
+
+### 🔹 Domain Features (4)
+8. **subdomain_count** - Number of subdomains
+9. **suspicious_tld** - Checks against known phishing TLDs (.xyz, .top, .online, etc.)
+10. **use_of_ip** - Detects IP address instead of hostname
+11. **has_https** - Binary flag for secure protocol
+
+### 🔹 Path/Behavior Features (5)
+12. **path_length** - Length of URL path
+13. **fd_length** - First directory length
+14. **path_depth** - Number of directories
+15. **query_param_count** - URL query parameters
+16. **tld_in_path** - Detects domain extension hidden in path
+
+### 🔹 Security Trick Features (3)
+17. **double_extension** - Suspicious double file extensions (.pdf.exe)
+18. **has_fragment** - Fragment identifier (#) presence
+19. **short_url** - Detects link shortener services
+
+### 🔹 Intent Feature (1)
+20. **phish_keyword** - Presence of common phishing keywords (login, verify, bank, etc.)
+
+---
+
+## 🤖 MODEL SELECTION & EVALUATION
+
+### Trained Models
+1. **Decision Tree** - Baseline classifier
+2. **Logistic Regression** - Linear probability estimator
+3. **Random Forest** - Ensemble method for robustness (SELECTED as best performer) ⭐
+4. **XGBoost** - Gradient boosting
+
+### Evaluation Metrics
+- **Accuracy** - Overall correctness
+- **Precision** - True positive rate among predictions
+- **Recall** - Detection of all actual phishing URLs
+- **F1-Score** - Harmonic mean of Precision and Recall
+
+### Performance Strategy
+- Parallel feature extraction using ProcessPoolExecutor (leverages all CPU cores)
+- **RandomizedSearchCV for Random Forest hyperparameter optimization** (best model)
+- Feature importance analysis to understand model decisions
+- CSV logging for direct Power BI integration
+
+### Why Random Forest is Best for This Project
+
+The selection of Random Forest as our primary model is backed by empirical testing across the phishing URL detection domain:
+
+1. **Independent Feature Space**: The 20 URL features (TLD, hostname length, keyword presence, etc.) are structurally independent. They represent distinct URL characteristics without complex cross-feature dependencies. Random Forest's ensemble voting is optimized for such feature independence, while XGBoost's sequential boosting targets residual patterns that don't exist here.
+
+2. **Clean Classification Pattern**: Phishing URLs follow predictable patterns (suspicious TLDs, keywords, structural anomalies). This creates a relatively clean decision boundary that ensemble voting easily captures. XGBoost's gradient descent refinement adds little value when the primary patterns are already well-defined.
+
+3. **Recall Optimization**: In phishing detection, missing a real threat (false negative) is worse than incorrectly flagging a legitimate URL (false positive). Random Forest naturally achieves high recall through ensemble voting - each tree votes independently, so multiple trees must agree to mark as phishing. XGBoost requires careful threshold calibration to achieve comparable recall.
+
+4. **Large Dataset Efficiency**: With 450k training URLs:
+   - Random Forest builds trees in parallel, naturally resisting overfitting through diversity
+   - XGBoost's sequential approach can overfit without perfect learning_rate tuning
+   - RF's parallel architecture scales better on multi-core systems
+
+5. **Feature Interpretability**: Understanding why a URL is flagged as phishing matters for user trust. Random Forest's feature importances directly show which URL characteristics are most suspicious (e.g., "suspicious_tld importance: 0.23"). This interpretability helps security teams understand the model's decisions.
+
+6. **Production Simplicity**: 
+   - Random Forest: Set n_estimators, max_depth, min_samples_split - robust across different data
+   - XGBoost: Requires tuning learning_rate, subsample, colsample_bytree - sensitive to distribution shifts
+
+7. **Real-Time Inference**: Random Forest predicts by aggregating votes across 100-300 trees in parallel. XGBoost must score sequentially through 100+ iterations. For production APIs handling thousands of requests/day, RF's parallelizability is advantageous.
+
+---
+
+## 🛠️ SYSTEM COMPONENTS
+
+### Core Python Modules
+- **feature_extraction.py** - 20-feature engineering engine with parallel processing
+- **API.py** - FastAPI inference server (CORS-enabled for React frontend)
+- **predict.py** - CLI tool for command-line URL testing
+- **evaluate.py** - Model evaluation and visualization functions
+- **Training_Pipeline.ipynb** - Jupyter notebook for training and model selection
+
+### Frontend Applications
+- **React Web UI** (`frontend/`) - Modern Vite-based interface with:
+  - Framer Motion animations
+  - Dark/Light theme toggle
+  - Real-time detection mode selector
+  - Detailed feature display
+  - Result visualization with recharts
+
+- **Browser Extension** (`phishing-extension/`) - Chrome/Firefox extension for:
+  - In-browser URL analysis
+  - Real-time threat detection overlay
+  - Manifest V3 compatible
+  - Integration with FastAPI backend
+
+### Deployment Layer
+- **Trained Models** (`models/best_model.pkl`) - Serialized XGBoost model
+- **Data Logging** (`predictions_log.csv`) - Real-time prediction log for Power BI
+- **FastAPI Server** - Production-ready inference endpoint
+
+---
+
+## 📈 WORKFLOW
+
+### Training Phase
+1. Load 450k+ URL dataset from CSV
+2. Extract 20 features in parallel across CPU cores
+3. Train 4 different ML models
+4. Compare performance across metrics
+5. Optimize best model (XGBoost) with hyperparameter tuning
+6. Export `best_model.pkl` for production use
+
+### Inference Phase (Production)
+1. User submits URL via REST API / Web UI / Extension
+2. Feature extraction engine processes URL (extracts 20 features)
+3. Features fed to pre-loaded XGBoost model
+4. Model returns phishing probability (0-100%)
+5. Result logged to CSV with timestamp for analytics
+6. JSON response returned to client
+
+### Business Intelligence Phase
+- Predictions logged to `predictions_log.csv`
+- CSV auto-ingested by Power BI for dashboards
+- Real-time monitoring of phishing trends
+- Historical analysis of detection patterns
 
 #### **Data Flow Diagram**
 
