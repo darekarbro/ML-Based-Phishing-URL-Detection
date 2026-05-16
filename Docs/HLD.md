@@ -30,7 +30,7 @@ The Phishing URL Detection system is a comprehensive, multi-interface platform d
   POST /predict
   ├─ Extract 20 features from URL
   ├─ Apply StandardScaler normalization
-  ├─ Query XGBoost model
+  ├─ Query Random Forest model
   ├─ Format response (probability + optional features)
   ├─ Append to predictions_log.csv
   └─ Return JSON
@@ -108,7 +108,7 @@ The Phishing URL Detection system is a comprehensive, multi-interface platform d
         ┌────────────┼────────────┐
         │            │            │
    ┌────▼───────┐   │   ┌────────▼───────┐
-   │ Feature    │   │   │ XGBoost Model  │
+   │ Feature    │   │   │ Random Forest Model  │
    │ Extraction │   │   │ (best_model.pk)│
    └────────────┘   │   └────────────────┘
                     │
@@ -130,7 +130,7 @@ The Phishing URL Detection system is a comprehensive, multi-interface platform d
 User → React UI (browser)
       → POST /predict (API)
       → Feature Extraction
-      → XGBoost Prediction
+      → Random Forest Prediction
       → CSV Log + Response
       → Display Results in UI
 ```
@@ -141,7 +141,7 @@ User clicks link
       → Extension detects URL
       → POST /predict (API)
       → Feature Extraction
-      → XGBoost Prediction
+      → Random Forest Prediction
       → CSV Log + Response
       → Visual Alert in Extension
 ```
@@ -151,14 +151,14 @@ User clicks link
 python predict.py "URL" --mode detailed
       → HTTP Request to API
       → Feature Extraction
-      → XGBoost Prediction
+      → Random Forest Prediction
       → CSV Log + Response
       → Display in Terminal
 ```
 
 ## 5. Key Design Decisions
 
-1. **Model Selection**: XGBoost chosen for superior performance on tabular data
+1. **Model Selection**: Random Forest chosen for superior performance on URL feature classification
 2. **Feature Count**: 20 features provide optimal balance between expressiveness and speed
 3. **Parallel Processing**: CPU-parallelized feature extraction for 450k URLs
 4. **API-First Architecture**: Single source of truth for predictions, multiple client options

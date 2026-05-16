@@ -20,7 +20,7 @@ graph TB
     
     subgraph "Processing Layer"
         FE[Feature Extraction Module<br/>20 Features]
-        Model[(XGBoost Model<br/>best_model.pkl)]
+        Model[(Random Forest Model<br/>best_model.pkl)]
     end
     
     subgraph "Data & Monitoring"
@@ -54,7 +54,7 @@ graph TB
   - Extracts 20 features in parallel using ProcessPoolExecutor
   - Trains 4 different classifiers (DT, RF, LR, XGBoost)
   - Performs model comparison and feature importance analysis
-  - Optimizes best performer (XGBoost) using RandomizedSearchCV
+  - Optimizes best performer (Random Forest) using RandomizedSearchCV
 * **Output**: Serialized `best_model.pkl` saved to `models/` directory
 
 ### 2.2 Feature Engineering Layer (`feature_extraction.py`)
@@ -144,7 +144,7 @@ Feature Extraction Module
   ├─ Calculate 20 features
   └─ Return feature dictionary
     ↓
-Load Pre-trained XGBoost Model
+Load Pre-trained Random Forest Model
     ↓
 Feature Scaling (StandardScaler)
     ↓
