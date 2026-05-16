@@ -12,7 +12,7 @@
 ### Key Metrics
 - **Training Dataset:** ~450,000 URLs (balanced legitimate and malicious)
 - **Features Extracted:** 20 highly-engineered features per URL
-- **Model Type:** XGBoost (Extreme Gradient Boosting) — Best performer
+- **Model Type:** Random Forest (Ensemble Voting) — Best performer
 - **Inference Response Time:** <50ms per URL
 - **Deployment:** FastAPI REST API with browser extension & React web UI
 
@@ -29,7 +29,7 @@
 ### Solution Strategy
 - Engineer 20 distinct structural, domain, and behavioral features from raw URLs
 - Train multiple ML models (Decision Tree, Random Forest, Logistic Regression, XGBoost)
-- Select XGBoost as the best performer through empirical evaluation
+- Select Random Forest as the best performer through empirical evaluation
 - Deploy via FastAPI for real-time inference with sub-50ms latency
 - Provide multiple interfaces: REST API, React web application, browser extension
 - Log all predictions to enable Power BI dashboards for monitoring
@@ -88,7 +88,7 @@ The system extracts 20 carefully-designed features across 5 categories:
 
 ### Performance Strategy
 - Parallel feature extraction using ProcessPoolExecutor (leverages all CPU cores)
-- **RandomizedSearchCV for Random Forest hyperparameter optimization** (best model)
+- **RandomizedSearchCV for hyperparameter optimization** on the best performing model (Random Forest)
 - Feature importance analysis to understand model decisions
 - CSV logging for direct Power BI integration
 
@@ -141,7 +141,7 @@ The selection of Random Forest as our primary model is backed by empirical testi
   - Integration with FastAPI backend
 
 ### Deployment Layer
-- **Trained Models** (`models/best_model.pkl`) - Serialized XGBoost model
+- **Trained Models** (`models/best_model.pkl`) - Serialized Random Forest model
 - **Data Logging** (`predictions_log.csv`) - Real-time prediction log for Power BI
 - **FastAPI Server** - Production-ready inference endpoint
 
@@ -154,13 +154,13 @@ The selection of Random Forest as our primary model is backed by empirical testi
 2. Extract 20 features in parallel across CPU cores
 3. Train 4 different ML models
 4. Compare performance across metrics
-5. Optimize best model (XGBoost) with hyperparameter tuning
+5. Optimize best model (Random Forest) with hyperparameter tuning
 6. Export `best_model.pkl` for production use
 
 ### Inference Phase (Production)
 1. User submits URL via REST API / Web UI / Extension
 2. Feature extraction engine processes URL (extracts 20 features)
-3. Features fed to pre-loaded XGBoost model
+3. Features fed to pre-loaded Random Forest model
 4. Model returns phishing probability (0-100%)
 5. Result logged to CSV with timestamp for analytics
 6. JSON response returned to client
