@@ -52,7 +52,7 @@ We extract 20 specific features to ensure strong performance without unnecessary
 
 We test and compare four machine learning algorithms on the dataset:
 * **Decision Tree (DT)** - Baseline
-* **Random Forest (RF)** — *Our Best Performer*
+* **Random Forest (RF)** — *Our best performer*
 * **Logistic Regression (LR)** - Linear baseline
 * **XGBoost (Extreme Gradient Boosting)** - Gradient boosting approach
 
