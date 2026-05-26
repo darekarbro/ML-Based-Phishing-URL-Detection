@@ -26,8 +26,4 @@ PERSONAL_STUDY_GUIDE.md
 node_modules/
 frontend/node_modules/
 
-# Models and scalers
-models/best_model.pkl
-models/scaler.pkl
-
 archive
