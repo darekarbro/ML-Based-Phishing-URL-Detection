@@ -147,7 +147,7 @@ export default function App() {
 
       <footer className="app-footer">
         <div className="footer-text">
-          <Shield size={14} /> Core Engine: FastAPI &amp; XGBoost
+          <Shield size={14} /> Core Engine: FastAPI &amp; RF
         </div>
       </footer>
     </div>
