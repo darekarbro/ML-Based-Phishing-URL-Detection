@@ -117,7 +117,7 @@ export default function App() {
                   />
                 </div>
                 <div className="scanning-text">Analyzing URL Topology</div>
-                <div className="scanning-subtext">Extracting features and querying XGBoost model...</div>
+                <div className="scanning-subtext">Extracting features and querying Random Forest model...</div>
               </motion.div>
             )}
 
