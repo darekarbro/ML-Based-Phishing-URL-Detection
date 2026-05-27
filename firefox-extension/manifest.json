@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Phishing URL Detector",
+  "version": "1.0",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://ml-based-phishing-url-detection.onrender.com/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "phishing-detector@darekarbro.com",
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": [
+          "websiteActivity"
+        ]
+      }
+    }
+  }
+}
