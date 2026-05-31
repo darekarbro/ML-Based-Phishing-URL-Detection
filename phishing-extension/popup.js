@@ -104,7 +104,7 @@ function performScan(mode) {
         let currentURL = tabs[0].url;
         let tabId = tabs[0].id;
 
-        fetch("https://ml-based-phishing-url-detection.onrender.com", {
+        fetch("https://omd1809-phishing-detector-api.hf.space/predict", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

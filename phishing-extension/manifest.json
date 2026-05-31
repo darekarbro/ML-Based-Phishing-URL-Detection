@@ -9,7 +9,7 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://ml-based-phishing-url-detection.onrender.com*",
+    "https://omd1809-phishing-detector-api.hf.space/*",
     "<all_urls>"
   ],
   "background": {
