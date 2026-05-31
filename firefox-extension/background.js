@@ -152,7 +152,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 [domain]: { status: 'scanning' }
             });
 
-            const response = await fetch("https://omd1809-phishing-detector-api.hf.space/predict", {
+            // Call the Fast Scan API
+            const response = await fetch("https://ml-based-phishing-url-detection.onrender.com", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
