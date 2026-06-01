@@ -20,35 +20,35 @@ The system extracts 20 features across the following categories:
 
 ### Structural Features
 
-1. **url_length** - Total character length of the URL
-2. **hostname_length** - Length of the domain name
-3. **count.** - Number of dots in the URL
-4. **count-digits** - Total number of numeric digits
-5. **count-** - Number of hyphens (commonly used in phishing URLs)
-6. **count@** - Number of @ symbols (often used to obscure the actual domain)
-7. **count%** - Number of percent symbols (indicates URL encoding)
+1. url_length - Total character length of the URL
+2. hostname_length - Length of the domain name
+3. count. - Number of dots in the URL
+4. count-digits - Total number of numeric digits
+5. count- - Number of hyphens (commonly used in phishing URLs)
+6. count@ - Number of @ symbols (often used to obscure the actual domain)
+7. count% - Number of percent symbols (indicates URL encoding)
 
 ### Domain Features
 
-8. **subdomain_count** - Number of subdomains
-9. **suspicious_tld** - Binary indicator for suspicious top-level domains
-10. **use_of_ip** - Binary indicator if domain is an IP address
-11. **has_https** - Binary indicator for HTTPS protocol
+8. subdomain_count - Number of subdomains
+9. suspicious_tld - Binary indicator for suspicious top-level domains
+10. use_of_ip - Binary indicator if domain is an IP address
+11. has_https - Binary indicator for HTTPS protocol
 
 ### Path and Behavior Features
 
-12. **path_length** - Length of URL path
-13. **fd_length** - Length of the first directory
-14. **path_depth** - Number of directories in the path
-15. **query_param_count** - Number of URL parameters
-16. **tld_in_path** - Binary indicator for domain extension in path
+12. path_length - Length of URL path
+13. fd_length - Length of the first directory
+14. path_depth - Number of directories in the path
+15. query_param_count - Number of URL parameters
+16. tld_in_path - Binary indicator for domain extension in path
 
 ### Security Indicators
 
-17. **double_extension** - Binary indicator for suspicious double file extensions
-18. **has_fragment** - Binary indicator for URL fragment identifiers
-19. **short_url** - Binary indicator for link shortener services
-20. **phish_keyword** - Binary indicator for common phishing keywords
+17. double_extension - Binary indicator for suspicious double file extensions
+18. has_fragment - Binary indicator for URL fragment identifiers
+19. short_url - Binary indicator for link shortener services
+20. phish_keyword - Binary indicator for common phishing keywords
 
 ---
 
@@ -56,29 +56,29 @@ The system extracts 20 features across the following categories:
 
 The system evaluates and compares four machine learning algorithms:
 
-- **Decision Tree (DT)** - Baseline
-- **Random Forest (RF)** - Selected model
-- **Logistic Regression (LR)** - Linear baseline
-- **XGBoost** - Gradient boosting approach
+- Decision Tree (DT) - Baseline
+- Random Forest (RF) - Selected model
+- Logistic Regression (LR) - Linear baseline
+- XGBoost - Gradient boosting approach
 
 ### Model Selection
 
 Random Forest is used as the primary model based on the following characteristics:
 
-- **Ensemble approach** - Multiple decision trees reduce overfitting
-- **Feature robustness** - Handles independent URL features effectively
-- **Recall performance** - Achieves high sensitivity for phishing detection
-- **Computational efficiency** - Parallel tree building at scale
-- **Feature interpretability** - Provides feature importance rankings
+- Ensemble approach - Multiple decision trees reduce overfitting
+- Feature robustness - Handles independent URL features effectively
+- Recall performance - Achieves high sensitivity for phishing detection
+- Computational efficiency - Parallel tree building at scale
+- Feature interpretability - Provides feature importance rankings
 
 ### Evaluation Metrics
 
 Models are evaluated using:
 
-- **Accuracy** - Overall correctness
-- **Precision** - Positive prediction accuracy
-- **Recall** - Detection rate of actual positives
-- **F1-Score** - Harmonic mean of precision and recall
+- Accuracy - Overall correctness
+- Precision - Positive prediction accuracy
+- Recall - Detection rate of actual positives
+- F1-Score - Harmonic mean of precision and recall
 
 Results and visualizations are generated in the Jupyter Notebook.
 
@@ -147,7 +147,7 @@ python predict.py "http://example.com" --mode detailed
 
 ### Prediction Endpoint
 
-**POST** `/predict`
+POST `/predict`
 
 #### Fast Mode Request
 
@@ -207,6 +207,7 @@ python predict.py "http://example.com" --mode detailed
   },
   "timestamp": "2026-04-21T21:00:00.000000"
 }
+```
 
 ---
 
@@ -214,9 +215,9 @@ python predict.py "http://example.com" --mode detailed
 
 All API predictions are logged to `predictions_log.csv` with the following fields:
 
-- `timestamp` - Prediction timestamp
-- `url` - Analyzed URL
-- `probability` - Phishing probability (0-100)
+- timestamp - Prediction timestamp
+- url - Analyzed URL
+- probability - Phishing probability (0-100)
 - All 20 extracted features
 
 ### Power BI Integration
@@ -224,7 +225,7 @@ All API predictions are logged to `predictions_log.csv` with the following field
 To integrate with Power BI:
 
 1. Open Power BI Desktop
-2. Select **Get Data > Text/CSV** and import `predictions_log.csv`
+2. Select Get Data > Text/CSV and import `predictions_log.csv`
 3. Create visualizations for detection trends and feature analysis
 
 ---
@@ -232,42 +233,55 @@ To integrate with Power BI:
 ## Project Structure
 
 ```
-├── API.py                      # FastAPI inference server
-├── feature_extraction.py        # Feature engineering module
-├── predict.py                   # Command-line prediction tool
-├── evaluate.py                  # Model evaluation functions
-├── Training_Pipeline.ipynb      # Model training notebook
-├── requirements.txt             # Python dependencies
-│
-├── models/
-│   └── best_model.pkl          # Trained model
-│
-├── frontend/                    # React web application
-│   ├── src/
-│   │   ├── App.jsx             # Main application
-│   │   ├── api.js              # API integration
-│   │   └── components/         # UI components
-│   │       ├── SearchBar.jsx
-│   │       ├── ResultCard.jsx
-│   │       ├── ThemeToggle.jsx
-│   │       └── ModeSelector.jsx
-│   ├── package.json
-│   └── vite.config.js
-│
-├── phishing-extension/         # Browser extension
-│   ├── manifest.json
-│   ├── background.js           # Service worker
-│   ├── popup.html
-│   └── popup.js
-│
-├── Docs/                        # Documentation
-│   ├── Architecture.md
-│   ├── HLD.md
-│   ├── LLD.md
-│   ├── DPR.md
-│   └── PROJECT_ANALYSIS.md
-│
-└── README.md
+API.py                          # FastAPI inference server
+evaluate.py                     # Model evaluation functions
+feature_extraction.py           # Feature engineering module
+predict.py                      # Command-line prediction tool
+Training_Pipeline.ipynb         # Model training notebook
+requirements.txt                # Python dependencies
+
+models/
+  best_model.pkl                # Trained model
+
+frontend/                       # React web application
+  index.html
+  package.json
+  vite.config.js
+  public/
+  src/
+    App.jsx
+    App.css
+    main.jsx
+    index.css
+    api.js
+    telemetry.css
+    assets/
+    components/
+      ModeSelector.jsx
+      ResultCard.jsx
+      SearchBar.jsx
+      ThemeToggle.jsx
+
+phishing-extension/             # Browser extension
+  background.js
+  manifest.json
+  popup.html
+  popup.js
+  style.css
+
+firefox-extension/              # Firefox extension
+  background.js
+  manifest.json
+  popup.html
+  popup.js
+  style.css
+
+Docs/
+  Architecture.md               # System architecture
+  DPR.md                        # Detailed project report
+  HLD.md                        # High-level design
+  LLD.md                        # Low-level design
+  PROJECT_ANALYSIS.md           # Project analysis
 ```
 
 ---
@@ -275,43 +289,48 @@ To integrate with Power BI:
 ## System Requirements
 
 ### Backend Requirements
-- Python: 3.8 or higher (3.11+ recommended)
-- RAM: Minimum 4GB (8GB+ recommended for training)
-- CPU: Multi-core processor (for parallel feature extraction)
-- Disk: At least 500MB free space
+
+- Python 3.8 or higher (3.11+ recommended)
+- RAM: Minimum 4GB (8GB+ for training)
+- Multi-core processor (for parallel operations)
+- 500MB free disk space
 
 ### Frontend Requirements
-- Node.js: 16+ 
-- npm/yarn: Latest version
-- Modern Browser: Chrome, Firefox, Safari, or Edge
+
+- Node.js 16+
+- npm/yarn (latest version)
+- Modern browser (Chrome, Firefox, Safari, or Edge)
 
 ### Browser Extension Requirements
-- Chrome: Version 88+
-- Firefox: Version 89+
+
+- Chrome 88+
+- Firefox 89+
 
 ---
 
 ## Dependencies
 
 ### Backend Stack
-- **fastapi** - REST API framework
-- **uvicorn** - ASGI application server
-- **scikit-learn** - ML models (DT, RF, LR)
-- **xgboost** - Gradient boosting model
-- **pandas** - Data manipulation
-- **numpy** - Numerical computations
-- **tldextract** - URL TLD extraction
-- **joblib** - Model serialization
-- **tqdm** - Progress bars
-- **requests** - HTTP client
-- **matplotlib, seaborn** - Visualization
+
+- fastapi - REST API framework
+- uvicorn - ASGI server
+- scikit-learn - ML models
+- xgboost - Gradient boosting
+- pandas - Data manipulation
+- numpy - Numerical computing
+- tldextract - TLD extraction
+- joblib - Model serialization
+- tqdm - Progress bars
+- requests - HTTP client
+- matplotlib, seaborn - Visualization
 
 ### Frontend Stack
-- **react** - UI framework
-- **vite** - Build tool
-- **framer-motion** - Animations
-- **lucide-react** - Icons
-- **recharts** - Charts and visualization
+
+- react - UI framework
+- vite - Build tool
+- framer-motion - Animations
+- lucide-react - Icons
+- recharts - Charts
 
 ---
 
@@ -321,7 +340,7 @@ To integrate with Power BI:
 |-----------|------|----------|
 | Single URL prediction | 10-30ms | Intel i7, 16GB RAM |
 | 450k URL batch extraction | 5-10 min | 8-core CPU, 16GB RAM |
-| Model training (XGBoost) | 15-30 min | 8-core CPU, 16GB RAM |
+| Model training | 15-30 min | 8-core CPU, 16GB RAM |
 | API throughput | 100+ req/s | Single instance |
 
 ---
@@ -339,17 +358,19 @@ To integrate with Power BI:
 ## Documentation
 
 For detailed information, see:
-- [Architecture.md](Docs/Architecture.md) - System design and components
-- [HLD.md](Docs/HLD.md) - High-level design and workflows
-- [LLD.md](Docs/LLD.md) - Low-level module specifications
-- [DPR.md](Docs/DPR.md) - Detailed project report
-- [PROJECT_ANALYSIS.md](Docs/PROJECT_ANALYSIS.md) - Project overview
+
+- Architecture.md - System design and components
+- HLD.md - High-level design and workflows
+- LLD.md - Low-level module specifications
+- DPR.md - Detailed project report
+- PROJECT_ANALYSIS.md - Project overview
 
 ---
 
 ## Contributing
 
 To contribute improvements:
+
 1. Test changes thoroughly with multiple URL samples
 2. Update documentation if architecture changes
 3. Maintain consistent code style
@@ -359,7 +380,7 @@ To contribute improvements:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
@@ -376,12 +397,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 For issues, questions, or suggestions:
+
 - Open an issue on GitHub
 - Check existing documentation
 - Review API logs in predictions_log.csv
 
 ---
 
-**Last Updated**: May 15, 2026  
-**Version**: 1.0.0  
-**Status**: Production Ready
+Last Updated: June 1, 2026
+Version: 1.0.0
+Status: Production Ready
