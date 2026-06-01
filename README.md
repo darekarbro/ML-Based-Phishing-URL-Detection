@@ -4,167 +4,185 @@
 ![Python](https://img.shields.io/badge/Python-3.8%2B-green.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-API-teal.svg)
 
-## 📌 Project Overview
-This project detects malicious and phishing URLs using Machine Learning. It extracts key structural, domain, and behavioral features from a URL and passes them to trained ML models to determine the probability of the URL being a phishing attempt. The project includes a robust training pipeline, a fast API for inference, and integrated logging for Power BI dashboards.
+## Overview
 
-## 🎯 Problem Statement
-Phishing attacks are one of the most common cyber threats, tricking users into revealing sensitive information through deceptive URLs. A reliable, real-time ML-based URL classifier can significantly mitigate these risks by predicting the probability that a given link is malicious.
+This project implements an ML-based system for detecting phishing URLs. It extracts 20 structural, domain, and behavioral features from URLs and uses machine learning models to classify them as phishing or legitimate. The system includes a training pipeline, REST API for inference, browser extension for real-time detection, and web interface.
 
----
+## Problem Statement
 
-## 🔍 Features Extracted (20 Features)
-
-We extract 20 specific features to ensure strong performance without unnecessary complexity.
-
-### 🔹 Structure Features
-1. **url_length**: The total character length of the URL.
-2. **hostname_length**: Length of the domain name.
-3. **count.**: Number of dots (`.`) in the URL.
-4. **count-digits**: Total number of numeric digits in the URL.
-5. **count-**: Number of hyphens (`-`). Phishing sites often use hyphens to mimic legitimate domains.
-6. **count@**: Number of `@` symbols. Often used to hide the actual domain.
-7. **count%**: Number of `%` symbols. Indicates URL encoding, often used to obfuscate.
-
-### 🔹 Domain Features
-8. **subdomain_count**: The number of subdomains. Phishers use long subdomains to trick users.
-9. **suspicious_tld**: Checks if the Top-Level Domain (TLD) is commonly associated with spam (e.g., `.xyz`, `.top`).
-10. **use_of_ip**: Checks if the domain is directly an IP address instead of a standard hostname.
-11. **has_https**: `1` if the URL uses secure HTTPS, `0` otherwise.
-
-### 🔹 Path / Behavior Features
-12. **path_length**: Length of the URL path (everything after the domain).
-13. **fd_length**: Length of the first directory in the path.
-14. **path_depth**: The number of directories in the path (slashes `/`).
-15. **query_param_count**: The number of parameters passed in the URL (separated by `&`).
-16. **tld_in_path**: Checks if a domain extension (like `.com`) is hiding in the path (e.g., `google.com/login.com`).
-
-### 🔹 Security Trick Features
-17. **double_extension**: Detects suspicious files with double extensions (e.g., `.pdf.exe`).
-18. **has_fragment**: Checks for `#` fragment identifiers in the URL.
-19. **short_url**: Detects if the URL uses a link shortener service like `bit.ly` or `tinyurl.com`.
-
-### 🔹 Intent Feature
-20. **phish_keyword**: Checks if common phishing words (like `login`, `verify`, `secure`, `bank`) are present in the URL.
+Phishing attacks pose a significant cybersecurity threat. This project provides an automated method to classify URLs and detect potential phishing attempts by analyzing structural and behavioral characteristics.
 
 ---
 
-## 🤖 Machine Learning Models
+## Features Extracted
 
-We test and compare four machine learning algorithms on the dataset:
-* **Decision Tree (DT)** - Baseline
-* **Random Forest (RF)** — *Our best performer*
-* **Logistic Regression (LR)** - Linear baseline
-* **XGBoost (Extreme Gradient Boosting)** - Gradient boosting approach
+The system extracts 20 features across the following categories:
 
-### Why Random Forest Wins for Phishing Detection
+### Structural Features
 
-Random Forest outperforms XGBoost on this specific task because:
+1. **url_length** - Total character length of the URL
+2. **hostname_length** - Length of the domain name
+3. **count.** - Number of dots in the URL
+4. **count-digits** - Total number of numeric digits
+5. **count-** - Number of hyphens (commonly used in phishing URLs)
+6. **count@** - Number of @ symbols (often used to obscure the actual domain)
+7. **count%** - Number of percent symbols (indicates URL encoding)
 
-1. **Feature Independence**: The 20 URL features (TLD, hostname length, keywords, etc.) are structurally independent. They don't have complex interactions that require XGBoost's sequential refinement.
+### Domain Features
 
-2. **Clean Classification Boundary**: Phishing URLs follow predictable patterns. Ensemble voting naturally captures these patterns without needing iterative refinement.
+8. **subdomain_count** - Number of subdomains
+9. **suspicious_tld** - Binary indicator for suspicious top-level domains
+10. **use_of_ip** - Binary indicator if domain is an IP address
+11. **has_https** - Binary indicator for HTTPS protocol
 
-3. **High Recall**: Catching phishing attempts is critical. RF's ensemble voting achieves superior recall - multiple trees must agree, ensuring fewer missed threats.
+### Path and Behavior Features
 
-4. **Scale Efficiency**: With 450k training samples, RF's parallel tree building is more efficient and robust than XGBoost's sequential approach.
+12. **path_length** - Length of URL path
+13. **fd_length** - Length of the first directory
+14. **path_depth** - Number of directories in the path
+15. **query_param_count** - Number of URL parameters
+16. **tld_in_path** - Binary indicator for domain extension in path
 
-5. **Interpretability**: Feature importance directly shows which URL characteristics are most suspicious, helping understand model decisions.
+### Security Indicators
 
-6. **Production Simplicity**: Fewer hyperparameters to tune; robust across different URL distributions without constant retraining.
+17. **double_extension** - Binary indicator for suspicious double file extensions
+18. **has_fragment** - Binary indicator for URL fragment identifiers
+19. **short_url** - Binary indicator for link shortener services
+20. **phish_keyword** - Binary indicator for common phishing keywords
+
+---
+
+## Machine Learning Models
+
+The system evaluates and compares four machine learning algorithms:
+
+- **Decision Tree (DT)** - Baseline
+- **Random Forest (RF)** - Selected model
+- **Logistic Regression (LR)** - Linear baseline
+- **XGBoost** - Gradient boosting approach
+
+### Model Selection
+
+Random Forest is used as the primary model based on the following characteristics:
+
+- **Ensemble approach** - Multiple decision trees reduce overfitting
+- **Feature robustness** - Handles independent URL features effectively
+- **Recall performance** - Achieves high sensitivity for phishing detection
+- **Computational efficiency** - Parallel tree building at scale
+- **Feature interpretability** - Provides feature importance rankings
 
 ### Evaluation Metrics
-We compare models using:
-* **Accuracy:** Overall correctness of the model.
-* **Precision:** Accuracy of positive predictions.
-* **Recall:** Ability to find all actual positive cases.
-* **F1-Score:** The balance between Precision and Recall.
 
-*The results and feature importances are automatically displayed as graphs inside the Jupyter Notebook.*
+Models are evaluated using:
+
+- **Accuracy** - Overall correctness
+- **Precision** - Positive prediction accuracy
+- **Recall** - Detection rate of actual positives
+- **F1-Score** - Harmonic mean of precision and recall
+
+Results and visualizations are generated in the Jupyter Notebook.
 
 ---
 
-## 🛠️ How to Run the Project
+## Installation and Usage
 
-### 1. Install Python Requirements
+### 1. Install Requirements
+
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-### 2. Train the Models (Optional)
-If you want to retrain the models, ensure `urldata.csv` is in the project directory, then open and run the Jupyter Notebook:
+### 2. Train Models (Optional)
+
+To retrain models, ensure `urldata.csv` is in the project directory and run:
+
 ```bash
 jupyter notebook Training_Pipeline.ipynb
 ```
-*This will extract 20 features in parallel, train all 4 models on the full 450k+ dataset, perform Hyperparameter Tuning, and save the best model (Random Forest) inside `models/best_model.pkl`.*
 
-### 3. Start the FastAPI Server
+This extracts 20 features, trains all models on the dataset, performs hyperparameter tuning, and saves the best model to `models/best_model.pkl`.
+
+### 3. Start API Server
+
 ```bash
 python -m uvicorn API:app --reload
 ```
-*The API will be available at `http://127.0.0.1:8000`.*
 
-### 4. Use One of the Three Interfaces
+The API will be available at `http://127.0.0.1:8000`.
 
-#### Option A: React Web UI
+### 4. Access Interfaces
+
+#### Web Interface
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-*Opens interactive web interface at `http://localhost:5173` with real-time URL analysis, dark/light theme, and detailed feature visualization.*
 
-#### Option B: Browser Extension
-1. Navigate to `phishing-extension/` directory
-2. Open Chrome/Firefox and go to extensions page
+Access at `http://localhost:5173`.
+
+#### Browser Extension
+
+1. Open `phishing-extension/` directory
+2. In Chrome/Firefox, go to extensions page
 3. Enable "Developer Mode"
 4. Click "Load unpacked" and select the `phishing-extension/` folder
-5. The extension will appear in your toolbar for real-time URL checking
 
-#### Option C: Command Line
+#### Command Line
+
 ```bash
-python predict.py "http://suspicious-login-update.com"
+python predict.py "http://example.com"
 ```
-**Detailed Mode (Shows extracted features):**
+
+For detailed feature output:
+
 ```bash
-python predict.py "http://suspicious-login-update.com" --mode detailed
+python predict.py "http://example.com" --mode detailed
 ```
 
 ---
 
-## 🌐 API Usage
+## API Reference
 
-**Endpoint:** `POST /predict`
+### Prediction Endpoint
 
-### Example Request (Fast Mode)
+**POST** `/predict`
+
+#### Fast Mode Request
+
 ```json
 {
-  "url": "http://secure-update-login.xyz",
+  "url": "http://example.com",
   "mode": "fast"
 }
 ```
 
-### Example Response (Fast Mode)
+#### Fast Mode Response
+
 ```json
 {
   "probability": 98.4,
-  "message": "The URL has a phishing probability of 98.4%. You may consider a threshold like 50% to classify.",
+  "message": "The URL has a phishing probability of 98.4%.",
   "timestamp": "2026-04-21T21:00:00.000000"
 }
 ```
 
-### Example Request (Detailed Mode)
+#### Detailed Mode Request
+
 ```json
 {
-  "url": "http://secure-update-login.xyz",
+  "url": "http://example.com",
   "mode": "detailed"
 }
 ```
 
-### Example Response (Detailed Mode)
+#### Detailed Mode Response
+
 ```json
 {
   "probability": 98.4,
-  "message": "The URL has a phishing probability of 98.4%. You may consider a threshold like 50% to classify.",
+  "message": "The URL has a phishing probability of 98.4%.",
   "features": {
     "url_length": 31,
     "hostname_length": 25,
@@ -189,44 +207,42 @@ python predict.py "http://suspicious-login-update.com" --mode detailed
   },
   "timestamp": "2026-04-21T21:00:00.000000"
 }
-```
 
 ---
 
-## 📊 Power BI Integration
-Every prediction made by the API is automatically logged into `predictions_log.csv` for business intelligence.
+## Logging and Analytics
 
-**Logged fields include:**
-* `timestamp` - When the prediction was made
-* `url` - The analyzed URL
-* `probability` - Phishing probability (0-100)
-* All 20 extracted features
+All API predictions are logged to `predictions_log.csv` with the following fields:
 
-**How to integrate with Power BI:**
+- `timestamp` - Prediction timestamp
+- `url` - Analyzed URL
+- `probability` - Phishing probability (0-100)
+- All 20 extracted features
+
+### Power BI Integration
+
+To integrate with Power BI:
+
 1. Open Power BI Desktop
-2. Select **Get Data > Text/CSV** and choose `predictions_log.csv`
-3. Build dashboards to:
-   - Track daily phishing detection counts
-   - Monitor average phishing probability trends
-   - Analyze feature patterns across detected phishing attempts
-   - Create alerts for anomalies in detection rates
+2. Select **Get Data > Text/CSV** and import `predictions_log.csv`
+3. Create visualizations for detection trends and feature analysis
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── API.py                      # FastAPI inference server
-├── feature_extraction.py        # 20-feature engineering engine
-├── predict.py                   # CLI tool for URL testing
+├── feature_extraction.py        # Feature engineering module
+├── predict.py                   # Command-line prediction tool
 ├── evaluate.py                  # Model evaluation functions
 ├── Training_Pipeline.ipynb      # Model training notebook
 ├── requirements.txt             # Python dependencies
 │
 ├── models/
-│   └── best_model.pkl          # Trained XGBoost model
+│   └── best_model.pkl          # Trained model
 │
-├── frontend/                    # React Web UI
+├── frontend/                    # React web application
 │   ├── src/
 │   │   ├── App.jsx             # Main application
 │   │   ├── api.js              # API integration
@@ -238,44 +254,44 @@ Every prediction made by the API is automatically logged into `predictions_log.c
 │   ├── package.json
 │   └── vite.config.js
 │
-├── phishing-extension/         # Browser Extension (Manifest V3)
+├── phishing-extension/         # Browser extension
 │   ├── manifest.json
 │   ├── background.js           # Service worker
 │   ├── popup.html
 │   └── popup.js
 │
 ├── Docs/                        # Documentation
-│   ├── Architecture.md          # System architecture
-│   ├── HLD.md                   # High-level design
-│   ├── LLD.md                   # Low-level design
-│   ├── DPR.md                   # Detailed project report
-│   └── PROJECT_ANALYSIS.md      # Project overview
+│   ├── Architecture.md
+│   ├── HLD.md
+│   ├── LLD.md
+│   ├── DPR.md
+│   └── PROJECT_ANALYSIS.md
 │
-└── README.md                    # This file
+└── README.md
 ```
 
 ---
 
-## � System Requirements
+## System Requirements
 
 ### Backend Requirements
-- **Python**: 3.8 or higher (3.11+ recommended)
-- **RAM**: Minimum 4GB (8GB+ recommended for training)
-- **CPU**: Multi-core processor (for parallel feature extraction)
-- **Disk**: At least 500MB free space
+- Python: 3.8 or higher (3.11+ recommended)
+- RAM: Minimum 4GB (8GB+ recommended for training)
+- CPU: Multi-core processor (for parallel feature extraction)
+- Disk: At least 500MB free space
 
 ### Frontend Requirements
-- **Node.js**: 16+ 
-- **npm/yarn**: Latest version
-- **Modern Browser**: Chrome, Firefox, Safari, or Edge
+- Node.js: 16+ 
+- npm/yarn: Latest version
+- Modern Browser: Chrome, Firefox, Safari, or Edge
 
 ### Browser Extension Requirements
-- **Chrome**: Version 88+
-- **Firefox**: Version 89+
+- Chrome: Version 88+
+- Firefox: Version 89+
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 ### Backend Stack
 - **fastapi** - REST API framework
@@ -299,7 +315,7 @@ Every prediction made by the API is automatically logged into `predictions_log.c
 
 ---
 
-## 🚀 Performance Benchmarks
+## Performance Benchmarks
 
 | Operation | Time | Hardware |
 |-----------|------|----------|
@@ -310,28 +326,28 @@ Every prediction made by the API is automatically logged into `predictions_log.c
 
 ---
 
-## 🔒 Security Considerations
+## Security Considerations
 
-1. **CORS Policy**: Currently set to `"*"`. In production, restrict to specific domains.
-2. **Input Validation**: All URLs validated before processing.
-3. **Model Safety**: Models stored as pickle files - only load from trusted sources.
-4. **Privacy**: URLs are logged to CSV - implement data retention policies as needed.
-5. **Rate Limiting**: Consider adding rate limiting for production deployment.
+1. CORS Policy - Currently set to wildcard; restrict to specific domains in production
+2. Input Validation - All URLs validated before processing
+3. Model Safety - Load models only from trusted sources
+4. Privacy - URLs are logged to CSV; implement data retention policies
+5. Rate Limiting - Consider adding rate limiting for production deployment
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 For detailed information, see:
-- **[Architecture.md](Docs/Architecture.md)** - System design and components
-- **[HLD.md](Docs/HLD.md)** - High-level design and workflows
-- **[LLD.md](Docs/LLD.md)** - Low-level module specifications
-- **[DPR.md](Docs/DPR.md)** - Detailed project report with technical deep-dive
-- **[PROJECT_ANALYSIS.md](Docs/PROJECT_ANALYSIS.md)** - Project overview and feature analysis
+- [Architecture.md](Docs/Architecture.md) - System design and components
+- [HLD.md](Docs/HLD.md) - High-level design and workflows
+- [LLD.md](Docs/LLD.md) - Low-level module specifications
+- [DPR.md](Docs/DPR.md) - Detailed project report
+- [PROJECT_ANALYSIS.md](Docs/PROJECT_ANALYSIS.md) - Project overview
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 To contribute improvements:
 1. Test changes thoroughly with multiple URL samples
@@ -341,28 +357,28 @@ To contribute improvements:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🎓 References & Resources
+## References
 
-- **Dataset**: Public phishing URL datasets from Kaggle and research sources
-- **XGBoost**: https://xgboost.readthedocs.io
-- **FastAPI**: https://fastapi.tiangolo.com
-- **React**: https://react.dev
-- **Power BI**: https://powerbi.microsoft.com
+- Dataset - Public phishing URL datasets from Kaggle and research sources
+- XGBoost - https://xgboost.readthedocs.io
+- FastAPI - https://fastapi.tiangolo.com
+- React - https://react.dev
+- Power BI - https://powerbi.microsoft.com
 
 ---
 
-## 📧 Support & Questions
+## Support
 
 For issues, questions, or suggestions:
 - Open an issue on GitHub
 - Check existing documentation
-- Review the API logs in `predictions_log.csv`
+- Review API logs in predictions_log.csv
 
 ---
 
