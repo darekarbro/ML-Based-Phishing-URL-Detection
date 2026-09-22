@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="Imgs/logo-banner.png" alt="PhishGuard - AI Powered URL Protection" width="640" />
+</div>
+
 # Phishing URL Detection Using Machine Learning
 
 ![Phishing Detection](https://img.shields.io/badge/Machine%20Learning-Phishing%20Detection-blue.svg)
