@@ -39,18 +39,20 @@ body {
 }
 
 .icon-container {
-  background: var(--apple-blue);
+  background: transparent;
   color: white;
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: 10px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.shield-icon {
-  width: 18px;
-  height: 18px;
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 8px;
 }
 
 h2 {

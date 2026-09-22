@@ -63,7 +63,7 @@ export default function App() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <Shield size={36} strokeWidth={1.5} />
+            <img src="/logo.svg" alt="PhishGuard logo" className="logo-img" />
           </motion.div>
           <motion.h1 
             className="app-title"

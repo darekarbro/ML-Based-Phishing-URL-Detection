@@ -1,67 +1,153 @@
 function renderScanningUI(resultBox) {
     resultBox.classList.remove("hidden");
     resultBox.className = "result-card loading";
-    resultBox.innerHTML = `
-        <div class="status-header">
-            <div class="status-icon-wrapper">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            </div>
-            <div class="status-info">
-                <div class="status-title">Scanning...</div>
-                <div class="status-desc">Analyzing website</div>
-            </div>
-        </div>
-    `;
+    
+    resultBox.textContent = '';
+    
+    const header = document.createElement('div');
+    header.className = 'status-header';
+    
+    const iconWrapper = document.createElement('div');
+    iconWrapper.className = 'status-icon-wrapper';
+    
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', '12'); circle.setAttribute('cy', '12'); circle.setAttribute('r', '10');
+    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    polyline.setAttribute('points', '12 6 12 12 16 14');
+    svg.append(circle, polyline);
+    iconWrapper.appendChild(svg);
+    
+    const info = document.createElement('div');
+    info.className = 'status-info';
+    
+    const title = document.createElement('div');
+    title.className = 'status-title';
+    title.textContent = 'Scanning...';
+    
+    const desc = document.createElement('div');
+    desc.className = 'status-desc';
+    desc.textContent = 'Analyzing website';
+    
+    info.append(title, desc);
+    header.append(iconWrapper, info);
+    resultBox.appendChild(header);
 }
 
 function renderErrorUI(resultBox) {
     resultBox.classList.remove("hidden");
     resultBox.className = "result-card danger";
-    resultBox.innerHTML = `
-        <div class="status-header">
-            <div class="status-icon-wrapper">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            </div>
-            <div class="status-info">
-                <div class="status-title">Connection Failed</div>
-                <div class="status-desc">Could not reach API</div>
-            </div>
-        </div>
-    `;
+    
+    resultBox.textContent = '';
+    
+    const header = document.createElement('div');
+    header.className = 'status-header';
+    
+    const iconWrapper = document.createElement('div');
+    iconWrapper.className = 'status-icon-wrapper';
+    
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', '12'); circle.setAttribute('cy', '12'); circle.setAttribute('r', '10');
+    const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line1.setAttribute('x1', '12'); line1.setAttribute('y1', '8'); line1.setAttribute('x2', '12'); line1.setAttribute('y2', '12');
+    const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line2.setAttribute('x1', '12'); line2.setAttribute('y1', '16'); line2.setAttribute('x2', '12.01'); line2.setAttribute('y2', '16');
+    svg.append(circle, line1, line2);
+    iconWrapper.appendChild(svg);
+    
+    const info = document.createElement('div');
+    info.className = 'status-info';
+    
+    const title = document.createElement('div');
+    title.className = 'status-title';
+    title.textContent = 'Connection Failed';
+    
+    const desc = document.createElement('div');
+    desc.className = 'status-desc';
+    desc.textContent = 'Could not reach API';
+    
+    info.append(title, desc);
+    header.append(iconWrapper, info);
+    resultBox.appendChild(header);
 }
 
 function renderSuccessUI(resultBox, data, isDanger, mode) {
     resultBox.classList.remove("hidden");
     resultBox.className = "result-card " + (isDanger ? "danger" : "safe");
-
-    let iconSvg = isDanger
-        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`
-        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
-
-    let title = isDanger ? "High Phishing Risk" : "Website Appears Safe";
-    let desc = isDanger ? `${data.probability}% probability` : `${data.probability}% risk`;
-
-    let resultHtml = `
-        <div class="status-header">
-            <div class="status-icon-wrapper">
-                ${iconSvg}
-            </div>
-            <div class="status-info">
-                <div class="status-title">${title}</div>
-                <div class="status-desc">${desc}</div>
-            </div>
-        </div>
-    `;
-
-    if (mode === "detailed" && data.features) {
-        resultHtml += "<div class='features-list'>";
-        for (const [key, value] of Object.entries(data.features)) {
-            resultHtml += `<div class='feature-item'><span class='feature-name'>${key}</span><span class='feature-value'>${value}</span></div>`;
-        }
-        resultHtml += "</div>";
+    
+    resultBox.textContent = '';
+    
+    const header = document.createElement('div');
+    header.className = 'status-header';
+    
+    const iconWrapper = document.createElement('div');
+    iconWrapper.className = 'status-icon-wrapper';
+    
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    
+    if (isDanger) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z');
+        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line1.setAttribute('x1', '12'); line1.setAttribute('y1', '9'); line1.setAttribute('x2', '12'); line1.setAttribute('y2', '13');
+        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line2.setAttribute('x1', '12'); line2.setAttribute('y1', '17'); line2.setAttribute('x2', '12.01'); line2.setAttribute('y2', '17');
+        svg.append(path, line1, line2);
+    } else {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M22 11.08V12a10 10 0 1 1-5.93-9.14');
+        const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        polyline.setAttribute('points', '22 4 12 14.01 9 11.01');
+        svg.append(path, polyline);
     }
-
-    resultBox.innerHTML = resultHtml;
+    iconWrapper.appendChild(svg);
+    
+    const info = document.createElement('div');
+    info.className = 'status-info';
+    
+    const title = document.createElement('div');
+    title.className = 'status-title';
+    title.textContent = isDanger ? "High Phishing Risk" : "Website Appears Safe";
+    
+    const desc = document.createElement('div');
+    desc.className = 'status-desc';
+    desc.textContent = isDanger ? `${data.probability}% probability` : `${data.probability}% risk`;
+    
+    info.append(title, desc);
+    header.append(iconWrapper, info);
+    resultBox.appendChild(header);
+    
+    if (mode === "detailed" && data.features) {
+        const featuresList = document.createElement('div');
+        featuresList.className = 'features-list';
+        
+        for (const [key, value] of Object.entries(data.features)) {
+            const item = document.createElement('div');
+            item.className = 'feature-item';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'feature-name';
+            nameSpan.textContent = key;
+            
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'feature-value';
+            valueSpan.textContent = value;
+            
+            item.append(nameSpan, valueSpan);
+            featuresList.appendChild(item);
+        }
+        resultBox.appendChild(featuresList);
+    }
 }
 
 // On popup open, check cache

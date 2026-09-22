@@ -158,6 +158,12 @@ body {
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
+.logo-img {
+  width: 44px;
+  height: 44px;
+  display: block;
+}
+
 .app-title {
   font-size: 3rem;
   font-weight: 800;
